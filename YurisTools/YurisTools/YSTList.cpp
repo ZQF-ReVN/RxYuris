@@ -35,21 +35,21 @@ bool YSTList::GetScriptInfo()
 			return false;
 		}
 
-		char* pYSTList = new char[szFile];
-		if (!pYSTList)
+		m_pYSTList = new char[szFile];
+		if (!m_pYSTList)
 		{
 			return false;
 		}
 
-		ifsYstList.read(pYSTList, szFile);
+		ifsYstList.read(m_pYSTList, szFile);
 
-		if (*(unsigned int*)(((YSTListHeader*)pYSTList)->aSignature) == 0x4C545359)
+		if (*(unsigned int*)(((YSTListHeader*)m_pYSTList)->aSignature) == 0x4C545359)
 		{
-			scriptCount = ((YSTListHeader*)pYSTList)->iScriptCount;
+			scriptCount = ((YSTListHeader*)m_pYSTList)->iScriptCount;
 		}
 
 		ScriptInfo si = { 0 };
-		ScriptInfo* pInfoStart = (ScriptInfo*)(pYSTList + sizeof(YSTListHeader));
+		ScriptInfo* pInfoStart = (ScriptInfo*)(m_pYSTList + sizeof(YSTListHeader));
 		for (size_t iteYst = 0; iteYst < scriptCount; iteYst++)
 		{
 			si.iIndex = pInfoStart->iIndex;
