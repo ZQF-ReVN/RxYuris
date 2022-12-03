@@ -1,9 +1,9 @@
 #include "YSTList.h"
 
-YstList::YstList(std::wstring wsYstListFile) :
-	m_pYstList(nullptr)
+YSTList::YSTList(std::wstring wsYSTListFile) :
+	m_pYSTList(nullptr)
 {
-	m_wsYstListFile = wsYstListFile;
+	m_wsYSTListFile = wsYSTListFile;
 
 	wchar_t currentDir[MAX_PATH] = { 0 };
 	GetCurrentDirectoryW(0xFF, currentDir);
@@ -15,18 +15,18 @@ YstList::YstList(std::wstring wsYstListFile) :
 	}
 }
 
-YstList::~YstList()
+YSTList::~YSTList()
 {
-	if (m_pYstList)
+	if (m_pYSTList)
 	{
-		delete[] m_pYstList;
+		delete[] m_pYSTList;
 	}
 }
 
-bool YstList::GetScriptInfo()
+bool YSTList::GetScriptInfo()
 {
 	size_t scriptCount = 0;
-	std::ifstream ifsYstList(m_wsYstListFile, std::ios::binary);
+	std::ifstream ifsYstList(m_wsYSTListFile, std::ios::binary);
 	if (ifsYstList.is_open())
 	{
 		size_t szFile = Tools::GetFileSize(ifsYstList);
@@ -35,21 +35,21 @@ bool YstList::GetScriptInfo()
 			return false;
 		}
 
-		char* m_pYstList = new char[szFile];
-		if (!m_pYstList)
+		char* pYSTList = new char[szFile];
+		if (!pYSTList)
 		{
 			return false;
 		}
 
-		ifsYstList.read(m_pYstList, szFile);
+		ifsYstList.read(pYSTList, szFile);
 
-		if (*(unsigned int*)(((YSTListHeader*)m_pYstList)->aSignature) == 0x4C545359)
+		if (*(unsigned int*)(((YSTListHeader*)pYSTList)->aSignature) == 0x4C545359)
 		{
-			scriptCount = ((YSTListHeader*)m_pYstList)->iScriptCount;
+			scriptCount = ((YSTListHeader*)pYSTList)->iScriptCount;
 		}
 
 		ScriptInfo si = { 0 };
-		ScriptInfo* pInfoStart = (ScriptInfo*)(m_pYstList + sizeof(YSTListHeader));
+		ScriptInfo* pInfoStart = (ScriptInfo*)(pYSTList + sizeof(YSTListHeader));
 		for (size_t iteYst = 0; iteYst < scriptCount; iteYst++)
 		{
 			si.iIndex = pInfoStart->iIndex;
@@ -74,7 +74,7 @@ bool YstList::GetScriptInfo()
 	return false;
 }
 
-void YstList::GetMakeDirInfo()
+void YSTList::GetMakeDirInfo()
 {
 	ScriptPath dirInfo;
 	std::string scriptFullPath;
@@ -94,7 +94,7 @@ void YstList::GetMakeDirInfo()
 	}
 }
 
-void YstList::TextCount()
+void YSTList::TextCount()
 {
 	std::wofstream oTextCout(L"TextCount.txt");
 	auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
@@ -116,7 +116,7 @@ void YstList::TextCount()
 
 }
 
-void YstList::MakeDir()
+void YSTList::MakeDir()
 {
 	std::wofstream oMakeDir(L"MakeDir.txt");
 	auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
@@ -137,7 +137,7 @@ void YstList::MakeDir()
 	}
 }
 
-void YstList::RestoreDir()
+void YSTList::RestoreDir()
 {
 	CreateDirectoryW(L"ysbin_RestoreDir", NULL);
 	for (ScriptPath& iteDirInfo : m_vecScriptPathList)

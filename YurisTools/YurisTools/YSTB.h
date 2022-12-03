@@ -6,7 +6,7 @@
 class YSTB
 {
 public:
-	static void YSTBXor(std::string strYSTB, unsigned char* aXorKey);
+	static void XorScript(std::string strYSTB, unsigned char* aXorKey);
 
 private:
 

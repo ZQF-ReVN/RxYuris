@@ -10,12 +10,12 @@
 using namespace ORG_Struct;
 using namespace CUS_Struct;
 
-class YstList
+class YSTList
 {
 private:
-    char* m_pYstList;
+    char* m_pYSTList;
     std::wstring m_wsCurrentDir;
-    std::wstring m_wsYstListFile;
+    std::wstring m_wsYSTListFile;
     std::vector<ScriptPath> m_vecScriptPathList;
     std::vector<ScriptInfo> m_vecScriptInfoList;
 
@@ -24,8 +24,8 @@ private:
     void GetMakeDirInfo();
 
 public:
-    YstList(std::wstring wsYstListFile);
-    ~YstList();
+    YSTList(std::wstring wsYSTListFile);
+    ~YSTList();
 
     void MakeDir();
     void RestoreDir();

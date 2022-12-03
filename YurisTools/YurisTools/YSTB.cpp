@@ -1,6 +1,6 @@
 #include "YSTB.h"
 
-void YSTB::YSTBXor(std::string strYSTB, unsigned char* aXorKey)
+void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 {
 	unsigned int magicFlag = 0;
 	unsigned int ystbSize = 0;

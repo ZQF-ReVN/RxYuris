@@ -1,7 +1,7 @@
-#include "YstList.h"
+#include "YSTList.h"
 #include "YSTB.h"
 
-void YSTList()
+void MakeDir()
 {
 	char flag = 0;
 	std::cout << "input m make directary and rename .ybn to real file name.\n";
@@ -11,7 +11,7 @@ void YSTList()
 	std::cin >> flag;
 	std::cout << std::endl;
 
-	YstList yst(L"yst_list.ybn");
+	YSTList yst(L"yst_list.ybn");
 	if (flag == 'm')
 	{
 		yst.MakeDir();
@@ -33,14 +33,14 @@ void YSTList()
 	system("pause");
 }
 
-void YSTB(int argc, char* argv[])
+void XorFile(int argc, char* argv[])
 {
 	unsigned char xorKey[4] = { 0 };
 	if (argc > 1)
 	{
 		if (sscanf_s(argv[2], "0x%x", (unsigned int*)(&xorKey)))
 		{
-			YSTB::YSTBXor(argv[1], xorKey);
+			YSTB::XorScript(argv[1], xorKey);
 		}
 	}
 }
