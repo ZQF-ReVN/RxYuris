@@ -66,7 +66,7 @@ namespace ORG_Struct
 //************************
 //* Customized structure *
 //************************
-namespace Cus_Struct
+namespace CUS_Struct
 {
     struct ScriptPath
     {

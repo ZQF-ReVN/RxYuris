@@ -8,7 +8,7 @@
 #include "Tools.h"
 #include "FileStruct.h"
 using namespace ORG_Struct;
-using namespace Cus_Struct;
+using namespace CUS_Struct;
 
 class YstList
 {
