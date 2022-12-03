@@ -2,6 +2,8 @@
 
 void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 {
+	char* pDec = nullptr;
+	char* pYstb = nullptr;
 	unsigned int magicFlag = 0;
 	unsigned int ystbSize = 0;
 
@@ -15,7 +17,7 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 		{
 			//Read Buffer
 			ystbSize = Tools::GetFileSize(iScript);
-			char* pYstb = new char[ystbSize];
+			pYstb = new char[ystbSize];
 			if (!pYstb)
 			{
 				return;
@@ -23,7 +25,7 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 			iScript.read(pYstb, ystbSize);
 
 			//Skip File Header
-			char* pDec = pYstb + 0x20;
+			pDec = pYstb + 0x20;
 
 			//Dec
 			size_t szSegment = 0;
@@ -48,6 +50,7 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 			}
 
 			delete[] pYstb;
+			pYstb = nullptr;
 		}
 
 		iScript.close();
