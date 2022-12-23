@@ -43,9 +43,30 @@ void XorFile(int argc, char* argv[])
 			YSTB::XorScript(argv[1], xorKey);
 		}
 	}
+	else
+	{
+		std::cout
+			<< "YurisTools.exe [FileName] [XorKey]\n"
+			<< "YurisTools.exe yst00000.ybn 0xABCFADAE\n"
+			<< std::endl;
+	}
+}
+
+void GuassKey()
+{
+	std::string fileName;
+	unsigned char xorKey[4] = { 0 };
+
+	std::cout << "Input File Name:";
+	std::cin >> fileName;
+
+	YSTB::GuessXorKey(fileName, xorKey);
+
+	std::cout << "0x" << std::hex << *(int*)xorKey << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-
+	GuassKey();
+	//XorFile(argc, argv);
 }

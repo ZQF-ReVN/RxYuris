@@ -1,4 +1,11 @@
 #include "YSTList.h"
+#include <Windows.h>
+#include <shlobj_core.h>
+#include <fstream>
+#include <codecvt>
+#include "Tools.h"
+using namespace CUS_Struct;
+using namespace ORG_Struct;
 
 YSTList::YSTList(std::wstring wsYSTListFile) :
 	m_pYSTList(nullptr)

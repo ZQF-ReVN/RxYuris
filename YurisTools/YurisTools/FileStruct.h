@@ -7,6 +7,14 @@
 namespace ORG_Struct
 {
     //from https://github.com/arcusmaximus/VNTranslationTools/blob/main/VNTextPatch.Shared/Scripts/Yuris/Notes.txt
+
+    /*
+    * YSTLFile
+    * {
+    *   YSTListHeader
+    *   ScriptInfo[YSTListHeader.iScriptCount]
+    * }
+    */
     struct YSTListHeader
     {
         char aSignature[4]; //YSTL
@@ -29,6 +37,16 @@ namespace ORG_Struct
     };
 
 
+    /*
+    * YSTBFile
+    * {
+    *   YSTBHeader
+    *   Instruction[iInstructionCount]
+    *   AttributeDescriptor[iAttributeDescriptorsSize / 12]
+    *   AttributeValues[iAttributeDescriptorsSize / Indeterminate]
+    *   lineNumbers[iLineNumbersSize / 4]
+    * }
+    */
     struct YSTBHeader
     {
         char aSignature[4]; //YSTB
@@ -39,10 +57,6 @@ namespace ORG_Struct
         int iAttributeValuesSize;
         int iLineNumbersSize;
         int iPadding;
-        //Instruction[iInstructionCount]
-        //AttributeDescriptor[iAttributeDescriptorsSize / 12]
-        //AttributeValues[iAttributeDescriptorsSize / Indeterminate]
-        //lineNumbers[iLineNumbersSize / 4]
     };
 
     struct Instruction
@@ -58,7 +72,7 @@ namespace ORG_Struct
         short sID;
         short sType; //(1 = long, 2 = double, 3 = string)
         int iSize;
-        int iOffsetInAttributeValues;
+        int iOffset;
     };
     //4D XX XX 22 ... 22      pushstring(quoted string with support for \\, \nand \t escape codes, but not \" or \')
 }

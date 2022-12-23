@@ -1,4 +1,8 @@
 #include "YSTB.h"
+#include <fstream>
+#include "Tools.h"
+#include "FileStruct.h"
+using namespace ORG_Struct;
 
 void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 {
@@ -51,6 +55,34 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 
 			delete[] pYstb;
 			pYstb = nullptr;
+		}
+
+		iScript.close();
+	}
+}
+
+void YSTB::GuessXorKey(std::string strYSTB, unsigned char* aXorKey)
+{
+	unsigned int key = 0;
+	std::ifstream iScript(strYSTB, std::ios::binary);
+	if (iScript.is_open())
+	{
+		//Init Header
+		YSTBHeader header = { 0 };
+		iScript.read((char*)&header, sizeof(YSTBHeader));
+
+		if (header.iAttributeValuesSize == 0)
+		{
+			*(unsigned int*)aXorKey = 0;
+		}
+		else
+		{
+			size_t pos = header.iInstructionsSize + sizeof(YSTBHeader) + 0x8;
+
+			//Read The First AttributeDescriptor iOffset == 0
+			iScript.seekg(pos);
+			iScript.read((char*)&key, 4);
+			*(unsigned int*)aXorKey = key;
 		}
 
 		iScript.close();
