@@ -38,7 +38,7 @@ namespace ORG_Struct
 
 
     /*
-    * YSTBFile
+    * YSTBFile_V5
     * {
     *   YSTBHeader
     *   Instruction[iInstructionCount]
@@ -47,16 +47,28 @@ namespace ORG_Struct
     *   lineNumbers[iLineNumbersSize / 4]
     * }
     */
-    struct YSTBHeader
+    struct YSTBHeader_V5
     {
         char aSignature[4]; //YSTB
-        int iVersion;
+        int iVersion; //300 - 
         int iInstructionCount;
         int iInstructionsSize; //iInstructionCount * 4
         int iAttributeDescriptorsSize;
         int iAttributeValuesSize;
         int iLineNumbersSize;
         int iPadding;
+    };
+
+    struct YSTBHeader_V2
+    {
+        char aSignature[4]; //YSTB
+        int iVersion; //224 - 300
+        int iCodeSegSize;
+        int iResSegSize;
+        int iResOffset;
+        int iReserved0;
+        int iReserved1;
+        int iReserved2;
     };
 
     struct Instruction

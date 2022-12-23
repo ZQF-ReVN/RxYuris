@@ -67,6 +67,6 @@ void GuassKey()
 
 int main(int argc, char* argv[])
 {
-	GuassKey();
-	//XorFile(argc, argv);
+	//GuassKey();
+	XorFile(argc, argv);
 }
