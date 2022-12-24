@@ -3,15 +3,18 @@
 
 void MakeDir()
 {
+	auto fileName = LR"(yst_list.ybn)";
 	char flag = 0;
-	std::cout << "input m make directary and rename .ybn to real file name.\n";
-	std::cout << "input r restore file and file name from directory.\n";
-	std::cout << "input c count how much text is in file.\n\n";
-	std::cout << "input:";
+
+	std::cout 
+		<< "input m make directary and rename .ybn to real file name.\n"
+		<< "input r restore file and file name from directory.\n"
+		<< "input c count how much text is in file.\n\n"
+		<< "input:";
 	std::cin >> flag;
 	std::cout << std::endl;
 
-	YSTList yst(L"yst_list.ybn");
+	YSTList yst(fileName);
 	if (flag == 'm')
 	{
 		yst.MakeDir();
@@ -46,8 +49,8 @@ void XorFile(int argc, char* argv[])
 	else
 	{
 		std::cout
-			<< "YurisTools.exe [FileName] [XorKey]\n"
-			<< "YurisTools.exe yst00000.ybn 0xABCFADAE\n"
+			<< "YurisTools.exe [FileName] [XorKey]"
+			<< "YurisTools.exe yst00000.ybn 0xABCFADAE"
 			<< std::endl;
 	}
 }
