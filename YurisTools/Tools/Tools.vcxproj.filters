@@ -15,24 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="EnumFiles.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="YSTList.cpp">
+    <ClCompile Include="CVTString.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="YSTB.cpp">
+    <ClCompile Include="Console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MemX.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="YSTB.h">
+    <ClInclude Include="EnumFiles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="YSTList.h">
+    <ClInclude Include="CVTString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileStruct.h">
+    <ClInclude Include="Console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MemX.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

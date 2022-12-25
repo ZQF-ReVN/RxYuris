@@ -1,7 +1,6 @@
 #include "YSTB.h"
 #include <fstream>
-#include <typeinfo>
-#include "Tools.h"
+#include "..\Tools\FileX.h"
 #include "FileStruct.h"
 using namespace ORG_Struct;
 
@@ -9,9 +8,9 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 {
 	char* pSeg = nullptr;
 	char* pYSTB = nullptr;
-	unsigned int size = 0;
 	unsigned int magic = 0;
 	unsigned int version = 0;
+	std::streamsize size = 0;
 
 
 	std::ifstream iYSTB(strYSTB, std::ios::binary);
@@ -24,8 +23,8 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 		if (magic == 0x42545359)
 		{
 			//Read Buffer
-			size = Tools::GetFileSize(iYSTB);
-			pYSTB = new char[size];
+			size = FileX::GetFileSize(iYSTB);
+			pYSTB = new char[static_cast<size_t>(size)];
 			if (!pYSTB)
 			{
 				return;

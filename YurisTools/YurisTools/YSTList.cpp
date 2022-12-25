@@ -3,7 +3,8 @@
 #include <shlobj_core.h>
 #include <fstream>
 #include <codecvt>
-#include "Tools.h"
+#include "..\Tools\FileX.h"
+#include "..\Tools\CVTString.h"
 using namespace CUS_Struct;
 using namespace ORG_Struct;
 
@@ -33,16 +34,18 @@ YSTList::~YSTList()
 bool YSTList::GetScriptInfo()
 {
 	size_t scriptCount = 0;
+	std::streamsize szFile = 0;
+
 	std::ifstream ifsYstList(m_wsYSTListFile, std::ios::binary);
 	if (ifsYstList.is_open())
 	{
-		size_t szFile = Tools::GetFileSize(ifsYstList);
+		szFile = FileX::GetFileSize(ifsYstList);
 		if (!szFile)
 		{
 			return false;
 		}
 
-		m_pYSTList = new char[szFile];
+		m_pYSTList = new char[static_cast<size_t>(szFile)];
 		if (!m_pYSTList)
 		{
 			return false;
@@ -94,7 +97,7 @@ void YSTList::GetMakeDirInfo()
 		scriptFullPath = iteScriptInfo.lpPath;
 
 		dirInfo.wsYbn = fileName;
-		dirInfo.wsPath = Tools::StrToWStr(scriptFullPath, 932);
+		CVTString::StrToWStr(scriptFullPath, dirInfo.wsPath, 932);
 		dirInfo.iTextCount = iteScriptInfo.iTextCount;
 
 		m_vecScriptPathList.push_back(dirInfo);

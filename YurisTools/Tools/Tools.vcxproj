@@ -19,49 +19,48 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="YSTB.cpp" />
-    <ClCompile Include="YSTList.cpp" />
+    <ClCompile Include="Console.cpp" />
+    <ClCompile Include="CVTString.cpp" />
+    <ClCompile Include="EnumFiles.cpp" />
+    <ClCompile Include="FileX.cpp" />
+    <ClCompile Include="MemX.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FileStruct.h" />
-    <ClInclude Include="YSTB.h" />
-    <ClInclude Include="YSTList.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Tools\Tools.vcxproj">
-      <Project>{503a1013-7500-4898-ba6f-47ca664c3f16}</Project>
-    </ProjectReference>
+    <ClInclude Include="Console.h" />
+    <ClInclude Include="CVTString.h" />
+    <ClInclude Include="EnumFiles.h" />
+    <ClInclude Include="FileX.h" />
+    <ClInclude Include="MemX.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a8f148cd-a258-4329-9fea-eb1c005b111e}</ProjectGuid>
-    <RootNamespace>YurisTools</RootNamespace>
+    <ProjectGuid>{503a1013-7500-4898-ba6f-47ca664c3f16}</ProjectGuid>
+    <RootNamespace>Tools</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
