@@ -36,36 +36,38 @@ bool YSTList::GetScriptInfo()
 	size_t scriptCount = 0;
 	std::streamsize szFile = 0;
 
-	std::ifstream ifsYstList(m_wsYSTListFile, std::ios::binary);
-	if (ifsYstList.is_open())
+	std::ifstream iYstList(m_wsYSTListFile, std::ios::binary);
+	if (iYstList.is_open())
 	{
-		szFile = FileX::GetFileSize(ifsYstList);
+		szFile = FileX::GetFileSize(iYstList);
 		if (!szFile)
 		{
+			iYstList.close();
 			return false;
 		}
 
 		m_pYSTList = new char[static_cast<size_t>(szFile)];
 		if (!m_pYSTList)
 		{
+			iYstList.close();
 			return false;
 		}
 
-		ifsYstList.read(m_pYSTList, szFile);
+		iYstList.read(m_pYSTList, szFile);
 
-		if (*(unsigned int*)(((YSTListHeader*)m_pYSTList)->aSignature) == 0x4C545359)
+		if (*(unsigned int*)(((YSTListHeader_V5*)m_pYSTList)->aSignature) == 0x4C545359)
 		{
-			scriptCount = ((YSTListHeader*)m_pYSTList)->iScriptCount;
+			scriptCount = ((YSTListHeader_V5*)m_pYSTList)->iScriptCount;
 		}
 
-		ScriptInfo si = { 0 };
-		ScriptInfo* pInfoStart = (ScriptInfo*)(m_pYSTList + sizeof(YSTListHeader));
+		ScriptInfo_V5 si = { 0 };
+		ScriptInfo_V5* pInfoStart = (ScriptInfo_V5*)(m_pYSTList + sizeof(YSTListHeader_V5));
 		for (size_t iteYst = 0; iteYst < scriptCount; iteYst++)
 		{
 			si.iIndex = pInfoStart->iIndex;
 			si.iPathLength = pInfoStart->iPathLength;
 			si.lpPath = (char*)&pInfoStart->iPathLength + 0x4;
-			pInfoStart = (ScriptInfo*)((char*)pInfoStart + si.iPathLength);
+			pInfoStart = (ScriptInfo_V5*)((char*)pInfoStart + si.iPathLength);
 			si.iLowDateTime = pInfoStart->iLowDateTime;
 			si.iHighDateTime = pInfoStart->iHighDateTime;
 			si.iVariableCount = pInfoStart->iVariableCount;
@@ -73,11 +75,11 @@ bool YSTList::GetScriptInfo()
 			si.iTextCount = pInfoStart->iTextCount;
 
 			m_vecScriptInfoList.push_back(si);
-			pInfoStart = (ScriptInfo*)((char*)pInfoStart + sizeof(ScriptInfo) - 0x4);
+			pInfoStart = (ScriptInfo_V5*)((char*)pInfoStart + sizeof(ScriptInfo_V5) - 0x4);
 		}
 		pInfoStart = nullptr;
 
-		ifsYstList.close();
+		iYstList.close();
 		return true;
 	}
 
@@ -90,7 +92,7 @@ void YSTList::GetMakeDirInfo()
 	std::string scriptFullPath;
 	wchar_t fileName[13] = { 0 };
 
-	for (ScriptInfo& iteScriptInfo : m_vecScriptInfoList)
+	for (ScriptInfo_V5& iteScriptInfo : m_vecScriptInfoList)
 	{
 		wsprintfW(fileName, L"yst%05d.ybn", iteScriptInfo.iIndex);
 		iteScriptInfo.lpPath[iteScriptInfo.iPathLength] = L'\0';

@@ -4,6 +4,106 @@
 #include "FileStruct.h"
 using namespace ORG_Struct;
 
+void YSTB::TextDump_V2(std::string strYSTB)
+{
+	std::ifstream iYSTB(strYSTB, std::ios::binary);
+	std::ofstream oText(strYSTB + ".txt");
+	if (iYSTB.is_open() && oText.is_open())
+	{
+		char* pYSTB = nullptr;
+		char* pCodeSeg = nullptr;
+		char* pResSeg = nullptr;
+		std::streamsize szYSTB = 0;
+		YSTBHeader_V2* header = nullptr;
+
+		//Read YSTB File To Buffer
+		szYSTB = FileX::GetFileSize(iYSTB);
+		pYSTB = new char[szYSTB];
+		if (pYSTB)
+		{
+			iYSTB.read(pYSTB, szYSTB);
+		}
+		else
+		{
+			iYSTB.close();
+			return;
+		}
+
+		//Init Info
+		header = reinterpret_cast<YSTBHeader_V2*>(pYSTB);
+		pCodeSeg = pYSTB + sizeof(YSTBHeader_V2);
+		pResSeg = pYSTB + header->iResOffset;
+
+		//Analyzing VM
+		//op -> 0x19 0x18 0x1A 0x1E 0x23 0x50 0x54 
+		/*	PushString
+		*	54			op
+			01			len = 0x01*0C + 6 / (if op == 0x38£¬len = 0xA)
+			BA000000	un0
+			00000000	un1
+			26000000	lenStr
+			05140000	offStr
+		*/
+		unsigned int textLen = 0;
+		unsigned int textOff = 0;
+		char buffer[0xFF] = { 0 };
+		for (int iteCodeSize = 0; iteCodeSize <= header->iCodeSegSize;)
+		{
+			switch (pCodeSeg[iteCodeSize])
+			{
+			case 0x19:
+				break;
+
+			case 0x18:
+				break;
+
+			case 0x1A:
+				break;
+
+			case 0x1E:
+				break;
+
+			case 0x23:
+				break;
+
+			case 0x38:
+				iteCodeSize += 0xA;
+				continue;
+				break;
+
+			case 0x50:
+				break;
+
+			case 0x54:
+				if (pCodeSeg[iteCodeSize + 1] == 1)
+				{
+					textLen = *reinterpret_cast<unsigned int*>(pCodeSeg + iteCodeSize + 10);
+					textOff = *reinterpret_cast<unsigned int*>(pCodeSeg + iteCodeSize + 14);
+					memcpy(buffer, pResSeg + textOff, textLen);
+					buffer[textLen + 1] = '\0';
+
+					oText << textOff << '\n';
+					oText << buffer << "\n\n";
+
+				}
+				break;
+			}
+
+			//Size Of Code Block
+			iteCodeSize += pCodeSeg[iteCodeSize + 1] * 0xC + 6;
+		}
+
+
+		delete[] pYSTB;
+		pYSTB = nullptr;
+		pCodeSeg = nullptr;
+		pResSeg = nullptr;
+		iYSTB.close();
+		oText.flush();
+		oText.close();
+	}
+}
+
 void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 {
 	char* pSeg = nullptr;

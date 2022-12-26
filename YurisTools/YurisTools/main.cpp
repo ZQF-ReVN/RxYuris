@@ -1,5 +1,6 @@
 #include "YSTList.h"
 #include "YSTB.h"
+#include <Windows.h>
 
 void MakeDir()
 {
@@ -70,6 +71,7 @@ void GuassKey()
 
 int main(int argc, char* argv[])
 {
+	YSTB::TextDump_V2("yst00035.ybn");
 	//GuassKey();
-	XorFile(argc, argv);
+	//XorFile(argc, argv);
 }

@@ -11,7 +11,7 @@ private:
     std::wstring m_wsCurrentDir;
     std::wstring m_wsYSTListFile;
     std::vector<CUS_Struct::ScriptPath> m_vecScriptPathList;
-    std::vector<ORG_Struct::ScriptInfo> m_vecScriptInfoList;
+    std::vector<ORG_Struct::ScriptInfo_V5> m_vecScriptInfoList;
 
 private:
     bool GetScriptInfo();
