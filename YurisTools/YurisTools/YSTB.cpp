@@ -11,13 +11,23 @@ using namespace ORG_Struct;
 
 bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 {
-	static auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
+	static auto cvtUTF8 = std::locale
+	(
+		std::locale::empty(),
+		new std::codecvt_utf8
+		<
+		wchar_t,
+		0x10ffff,
+		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
+		>
+	);
+
 	CopyFileA(strYSTB.c_str(), (strYSTB + ".new").c_str(), FALSE);
 	strYSTB.append(".new");
 
 	std::wifstream wiText(strYSTB + ".txt");
 	wiText.imbue(cvtUTF8);
-	std::fstream ioYSTB(strYSTB, std::ios::in | std::ios::out |std::ios::binary);
+	std::fstream ioYSTB(strYSTB, std::ios::in | std::ios::out | std::ios::binary);
 	if (wiText.is_open() && ioYSTB.is_open())
 	{
 		char* pCodeSeg = nullptr;
@@ -91,7 +101,17 @@ bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 
 bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
 {
-	static auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
+	static auto cvtUTF8 = std::locale
+	(
+		std::locale::empty(),
+		new std::codecvt_utf8
+		<
+		wchar_t,
+		0x10ffff,
+		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
+		>
+	);
+
 	std::ifstream iYSTB(strYSTB, std::ios::binary);
 	std::wofstream woText(strYSTB + ".new.txt");
 	woText.imbue(cvtUTF8);
@@ -176,7 +196,7 @@ bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
 					woText << L"Offset:" << std::setw(0x8) << std::setfill(L'0') << std::hex << iteCodeSize << '\n';
 					woText << L"Count :" << std::setw(0x8) << std::setfill(L'0') << std::dec << count << '\n';
 					CVTString::StrToWStr(mText, wText, uiCodePage);
-					woText 
+					woText
 						<< L"Raw:" << wText << "\n"
 						<< L"Tra:" << wText << "\n\n";
 					count++;
