@@ -1,14 +1,101 @@
 #include "YSTB.h"
+#include <Windows.h>
 #include <fstream>
+#include <string>
+#include <codecvt>
+#include <iomanip>
 #include "..\Tools\FileX.h"
 #include "FileStruct.h"
+#include "..\Tools\CVTString.h"
 using namespace ORG_Struct;
 
-void YSTB::TextDump_V2(std::string strYSTB)
+bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 {
+	static auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
+	CopyFileA(strYSTB.c_str(), (strYSTB + ".new").c_str(), FALSE);
+	strYSTB.append(".new");
+
+	std::wifstream wiText(strYSTB + ".txt");
+	wiText.imbue(cvtUTF8);
+	std::fstream ioYSTB(strYSTB, std::ios::in | std::ios::out |std::ios::binary);
+	if (wiText.is_open() && ioYSTB.is_open())
+	{
+		char* pCodeSeg = nullptr;
+		YSTBHeader_V2 header = { 0 };
+
+		//Init Header
+		ioYSTB.seekg(0);
+		ioYSTB.read(reinterpret_cast<char*>(&header), sizeof(YSTBHeader_V2));
+
+		//Read Code Segment To Buffer
+		pCodeSeg = new char[header.iCodeSegSize];
+		if (pCodeSeg != nullptr)
+		{
+			ioYSTB.read(pCodeSeg, header.iCodeSegSize);
+		}
+		else
+		{
+			wiText.close();
+			ioYSTB.close();
+			return false;
+		}
+
+		//Append Text
+		std::string mText;
+		unsigned int szText = 0;
+		unsigned int offset = 0;
+		for (std::wstring wLine; std::getline(wiText, wLine);)
+		{
+			if (wLine.find(L"Offset:") == 0)
+			{
+				swscanf_s(wLine.c_str(), L"Offset:%08x", &offset);
+				for (; std::getline(wiText, wLine);)
+				{
+					if (wLine.find(L"Tra:") == 0)
+					{
+						//Processing Text
+						wLine = wLine.substr(4);
+						CVTString::WStrToStr(wLine, mText, uiCodePage);
+						szText = mText.size();
+
+						//Modify Code (len,off) and File Header
+						*(unsigned int*)(pCodeSeg + offset + 0xA) = szText;
+						*(unsigned int*)(pCodeSeg + offset + 0xE) = header.iResSegSize;
+						header.iResSegSize += szText;
+
+						//Append Text
+						ioYSTB.seekp(0, std::ios::end);
+						ioYSTB.write(mText.c_str(), szText);
+
+						break;
+					}
+				}
+			}
+		}
+
+		//Write Back Code Segment
+		ioYSTB.seekp(sizeof(YSTBHeader_V2));
+		ioYSTB.write(pCodeSeg, header.iCodeSegSize);
+
+
+		ioYSTB.flush();
+		ioYSTB.close();
+		wiText.close();
+		delete[] pCodeSeg;
+		pCodeSeg = nullptr;
+		return true;
+	}
+
+	return false;
+}
+
+bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
+{
+	static auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
 	std::ifstream iYSTB(strYSTB, std::ios::binary);
-	std::ofstream oText(strYSTB + ".txt");
-	if (iYSTB.is_open() && oText.is_open())
+	std::wofstream woText(strYSTB + ".new.txt");
+	woText.imbue(cvtUTF8);
+	if (iYSTB.is_open() && woText.is_open())
 	{
 		char* pYSTB = nullptr;
 		char* pCodeSeg = nullptr;
@@ -18,7 +105,7 @@ void YSTB::TextDump_V2(std::string strYSTB)
 
 		//Read YSTB File To Buffer
 		szYSTB = FileX::GetFileSize(iYSTB);
-		pYSTB = new char[szYSTB];
+		pYSTB = new char[static_cast<size_t>(szYSTB)];
 		if (pYSTB)
 		{
 			iYSTB.read(pYSTB, szYSTB);
@@ -26,7 +113,7 @@ void YSTB::TextDump_V2(std::string strYSTB)
 		else
 		{
 			iYSTB.close();
-			return;
+			return false;
 		}
 
 		//Init Info
@@ -44,6 +131,9 @@ void YSTB::TextDump_V2(std::string strYSTB)
 			26000000	lenStr
 			05140000	offStr
 		*/
+		std::string mText;
+		std::wstring wText;
+		unsigned int count = 1;
 		unsigned int textLen = 0;
 		unsigned int textOff = 0;
 		char buffer[0xFF] = { 0 };
@@ -77,14 +167,19 @@ void YSTB::TextDump_V2(std::string strYSTB)
 			case 0x54:
 				if (pCodeSeg[iteCodeSize + 1] == 1)
 				{
-					textLen = *reinterpret_cast<unsigned int*>(pCodeSeg + iteCodeSize + 10);
-					textOff = *reinterpret_cast<unsigned int*>(pCodeSeg + iteCodeSize + 14);
+					textLen = *reinterpret_cast<unsigned int*>(pCodeSeg + iteCodeSize + 0xA);
+					textOff = *reinterpret_cast<unsigned int*>(pCodeSeg + iteCodeSize + 0xE);
 					memcpy(buffer, pResSeg + textOff, textLen);
-					buffer[textLen + 1] = '\0';
+					buffer[textLen] = '\0';
+					mText = buffer;
 
-					oText << textOff << '\n';
-					oText << buffer << "\n\n";
-
+					woText << L"Offset:" << std::setw(0x8) << std::setfill(L'0') << std::hex << iteCodeSize << '\n';
+					woText << L"Count :" << std::setw(0x8) << std::setfill(L'0') << std::dec << count << '\n';
+					CVTString::StrToWStr(mText, wText, uiCodePage);
+					woText 
+						<< L"Raw:" << wText << "\n"
+						<< L"Tra:" << wText << "\n\n";
+					count++;
 				}
 				break;
 			}
@@ -94,14 +189,17 @@ void YSTB::TextDump_V2(std::string strYSTB)
 		}
 
 
+		woText.flush();
+		woText.close();
+		iYSTB.close();
 		delete[] pYSTB;
 		pYSTB = nullptr;
 		pCodeSeg = nullptr;
 		pResSeg = nullptr;
-		iYSTB.close();
-		oText.flush();
-		oText.close();
+		return true;
 	}
+
+	return false;
 }
 
 void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)

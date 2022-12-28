@@ -11,7 +11,7 @@ void CVTString::StrToWStr(std::string& strString, std::wstring& wsString, unsign
 	buffer = new wchar_t[len + 1];
 	MultiByteToWideChar(uCodePage, NULL, strString.c_str(), static_cast<int>(strString.size()), buffer, len);
 	buffer[len] = L'\0';
-	wsString.append(buffer);
+	wsString = buffer;
 
 	delete[] buffer;
 }
@@ -25,7 +25,7 @@ void CVTString::WStrToStr(std::wstring& wsString, std::string& strString, unsign
 	buffer = new char[len + 1];
 	WideCharToMultiByte(uCodePage, NULL, wsString.c_str(), static_cast<int>(wsString.size()), buffer, len, NULL, NULL);
 	buffer[len] = '\0';
-	strString.append(buffer);
+	strString = buffer;
 
 	delete[] buffer;
 }
