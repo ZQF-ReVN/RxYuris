@@ -108,8 +108,18 @@ void YSTList::GetMakeDirInfo()
 
 void YSTList::TextCount()
 {
+	static auto cvtUTF8 = std::locale
+	(
+		std::locale::empty(),
+		new std::codecvt_utf8
+		<
+		wchar_t,
+		0x10ffff,
+		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
+		>
+	);
+
 	std::wofstream oTextCout(L"TextCount.txt");
-	auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
 	oTextCout.imbue(cvtUTF8);
 
 	if (oTextCout.is_open())
@@ -130,8 +140,18 @@ void YSTList::TextCount()
 
 void YSTList::MakeDir()
 {
+	static auto cvtUTF8 = std::locale
+	(
+		std::locale::empty(),
+		new std::codecvt_utf8
+		<
+		wchar_t,
+		0x10ffff,
+		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
+		>
+	);
+
 	std::wofstream oMakeDir(L"MakeDir.txt");
-	auto cvtUTF8 = std::locale(std::locale::empty(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)>);
 	oMakeDir.imbue(cvtUTF8);
 	if (oMakeDir.is_open())
 	{
