@@ -2,25 +2,15 @@
 #include <Windows.h>
 #include <fstream>
 #include <string>
-#include <codecvt>
 #include <iomanip>
 #include "..\Tools\FileX.h"
-#include "FileStruct.h"
 #include "..\Tools\CVTString.h"
+#include "FileStruct.h"
 using namespace ORG_Struct;
 
 bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 {
-	static auto cvtUTF8 = std::locale
-	(
-		std::locale::empty(),
-		new std::codecvt_utf8
-		<
-		wchar_t,
-		0x10ffff,
-		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
-		>
-	);
+	std::locale cvtUTF8 = CVTString::GetCVT();
 
 	CopyFileA(strYSTB.c_str(), (strYSTB + ".new").c_str(), FALSE);
 	strYSTB.append(".new");
@@ -101,16 +91,7 @@ bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 
 bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
 {
-	static auto cvtUTF8 = std::locale
-	(
-		std::locale::empty(),
-		new std::codecvt_utf8
-		<
-		wchar_t,
-		0x10ffff,
-		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
-		>
-	);
+	std::locale cvtUTF8 = CVTString::GetCVT();
 
 	std::ifstream iYSTB(strYSTB, std::ios::binary);
 	std::wofstream woText(strYSTB + ".new.txt");

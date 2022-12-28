@@ -2,7 +2,6 @@
 #include <Windows.h>
 #include <shlobj_core.h>
 #include <fstream>
-#include <codecvt>
 #include "..\Tools\FileX.h"
 #include "..\Tools\CVTString.h"
 using namespace CUS_Struct;
@@ -108,16 +107,7 @@ void YSTList::GetMakeDirInfo()
 
 void YSTList::TextCount()
 {
-	static auto cvtUTF8 = std::locale
-	(
-		std::locale::empty(),
-		new std::codecvt_utf8
-		<
-		wchar_t,
-		0x10ffff,
-		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
-		>
-	);
+	std::locale cvtUTF8 = CVTString::GetCVT();
 
 	std::wofstream oTextCout(L"TextCount.txt");
 	oTextCout.imbue(cvtUTF8);
@@ -140,16 +130,7 @@ void YSTList::TextCount()
 
 void YSTList::MakeDir()
 {
-	static auto cvtUTF8 = std::locale
-	(
-		std::locale::empty(),
-		new std::codecvt_utf8
-		<
-		wchar_t,
-		0x10ffff,
-		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
-		>
-	);
+	std::locale cvtUTF8 = CVTString::GetCVT();
 
 	std::wofstream oMakeDir(L"MakeDir.txt");
 	oMakeDir.imbue(cvtUTF8);

@@ -71,8 +71,9 @@ void GuassKey()
 
 int main(int argc, char* argv[])
 {
-	//YSTB::TextDump_V2("yst00034.ybn",932);
-	YSTB::TextInset_V2("yst00034.ybn",936);
+	YSTB::TextDump_V2("yst00034.ybn",936);
+	YSTB::TextDump_V2("yst00034.ybn", 936);
+	//YSTB::TextInset_V2("yst00034.ybn",936);
 	//GuassKey();
 	//XorFile(argc, argv);
 }
