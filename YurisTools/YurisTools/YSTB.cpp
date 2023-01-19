@@ -29,16 +29,7 @@ bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 
 		//Read Code Segment To Buffer
 		pCodeSeg = new char[header.iCodeSegSize];
-		if (pCodeSeg != nullptr)
-		{
-			ioYSTB.read(pCodeSeg, header.iCodeSegSize);
-		}
-		else
-		{
-			wiText.close();
-			ioYSTB.close();
-			return false;
-		}
+		ioYSTB.read(pCodeSeg, header.iCodeSegSize);
 
 		//Append Text
 		std::string mText;
@@ -107,15 +98,7 @@ bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
 		//Read YSTB File To Buffer
 		szYSTB = FileX::GetFileSize(iYSTB);
 		pYSTB = new char[static_cast<size_t>(szYSTB)];
-		if (pYSTB)
-		{
-			iYSTB.read(pYSTB, szYSTB);
-		}
-		else
-		{
-			iYSTB.close();
-			return false;
-		}
+		iYSTB.read(pYSTB, szYSTB);
 
 		//Init Info
 		header = reinterpret_cast<YSTBHeader_V2*>(pYSTB);
@@ -180,6 +163,7 @@ bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
 					woText
 						<< L"Raw:" << wText << "\n"
 						<< L"Tra:" << wText << "\n\n";
+
 					count++;
 				}
 				break;
@@ -203,7 +187,7 @@ bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
 	return false;
 }
 
-void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
+bool YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 {
 	char* pSeg = nullptr;
 	char* pYSTB = nullptr;
@@ -224,10 +208,6 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 			//Read Buffer
 			size = FileX::GetFileSize(iYSTB);
 			pYSTB = new char[static_cast<size_t>(size)];
-			if (!pYSTB)
-			{
-				return;
-			}
 			iYSTB.read(pYSTB, size);
 
 			//Skip File Header
@@ -278,7 +258,10 @@ void YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
 		}
 
 		iYSTB.close();
+		return true;
 	}
+
+	return false;
 }
 
 void YSTB::GuessXorKey(std::string strYSTB, unsigned char* aXorKey)

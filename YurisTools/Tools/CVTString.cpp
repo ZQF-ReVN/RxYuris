@@ -2,6 +2,22 @@
 #include <Windows.h>
 #include <codecvt>
 
+std::locale& CVTString::GetCVT()
+{
+	static auto cvtUTF8 = std::locale
+	(
+		std::locale::empty(),
+		new std::codecvt_utf8
+		<
+		wchar_t,
+		0x10ffff,
+		std::codecvt_mode(std::consume_header | std::generate_header | std::little_endian)
+		>
+	);
+
+	return cvtUTF8;
+}
+
 void CVTString::StrToWStr(std::string& strString, std::wstring& wsString, unsigned int uCodePage)
 {
 	int len = 0;
