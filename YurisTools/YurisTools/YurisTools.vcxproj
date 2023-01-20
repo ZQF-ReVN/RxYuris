@@ -20,13 +20,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="YPF.cpp" />
     <ClCompile Include="YSTB.cpp" />
     <ClCompile Include="YSTList.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FileStruct.h" />
+    <ClInclude Include="YPF.h" />
+    <ClInclude Include="YPF_Struct.h" />
     <ClInclude Include="YSTB.h" />
+    <ClInclude Include="YSTB_Stuct.h" />
     <ClInclude Include="YSTList.h" />
+    <ClInclude Include="YSTList_Struct.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tools\Tools.vcxproj">

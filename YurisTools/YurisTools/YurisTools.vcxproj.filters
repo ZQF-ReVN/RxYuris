@@ -24,6 +24,9 @@
     <ClCompile Include="YSTB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="YPF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="YSTB.h">
@@ -32,7 +35,16 @@
     <ClInclude Include="YSTList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileStruct.h">
+    <ClInclude Include="YPF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YSTB_Stuct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YSTList_Struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YPF_Struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

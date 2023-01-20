@@ -1,12 +1,13 @@
 #include "YSTB.h"
-#include <Windows.h>
-#include <fstream>
-#include <string>
-#include <iomanip>
+#include "YSTB_Stuct.h"
 #include "..\Tools\FileX.h"
 #include "..\Tools\CVTString.h"
-#include "FileStruct.h"
-using namespace ORG_Struct;
+
+#include <Windows.h>
+#include <fstream>
+#include <iomanip>
+
+using namespace YSTB_Struct;
 
 bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 {

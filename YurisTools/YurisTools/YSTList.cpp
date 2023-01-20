@@ -1,11 +1,12 @@
 #include "YSTList.h"
+#include "..\Tools\FileX.h"
+#include "..\Tools\CVTString.h"
+
 #include <Windows.h>
 #include <shlobj_core.h>
 #include <fstream>
-#include "..\Tools\FileX.h"
-#include "..\Tools\CVTString.h"
-using namespace CUS_Struct;
-using namespace ORG_Struct;
+
+using namespace YSTList_Stuct;
 
 YSTList::YSTList(std::wstring wsYSTListFile) :
 	m_pYSTList(nullptr)

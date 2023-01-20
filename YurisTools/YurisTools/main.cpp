@@ -1,6 +1,10 @@
+#include <Windows.h>
+#include <iostream>
+
 #include "YSTList.h"
 #include "YSTB.h"
-#include <Windows.h>
+#include "YPF.h"
+
 
 void MakeDir()
 {
@@ -71,8 +75,11 @@ void GuassKey()
 
 int main(int argc, char* argv[])
 {
+	MakeDir();
+	//YPF ypf(L"update1.ypf");
+	//ypf.DecodeFile();
 	//YSTB::TextDump_V2("yst00034.ybn",936);
 	//YSTB::TextInset_V2("yst00034.ybn",936);
 	//GuassKey();
-	XorFile(argc, argv);
+	//XorFile(argc, argv);
 }
