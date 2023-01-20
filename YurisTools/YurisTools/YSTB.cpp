@@ -1,5 +1,5 @@
 #include "YSTB.h"
-#include "YSTB_Stuct.h"
+#include "YSTB_Struct.h"
 #include "..\Tools\FileX.h"
 #include "..\Tools\CVTString.h"
 

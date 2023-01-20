@@ -2,11 +2,18 @@
 
 namespace YPF_Struct
 {
+	/*
+	* YPF_File
+	* - YPFHeader
+	* - YPFEntry[YPFHeader->uiIndexEntryCount]
+	* - Data
+	*/
+
 	//frome crass/cui/YU-RIS/YU-RIS.cpp
 	struct YPFHeader_V2
 	{
-		char aSignature[4];             // "YPF"
-		unsigned int uiVersion;         // version > 200
+		char aSignature[4];              // "YPF"
+		unsigned int uiVersion;          // version > 200
 		unsigned int uiIndexEntryCount;
 		unsigned int uiIndexBlockSize;
 		unsigned int uiReserved0;
@@ -18,15 +25,15 @@ namespace YPF_Struct
 	#pragma pack(1)
 	struct YPFEntry_V5
 	{
-		unsigned int uiNameCrc;
-		unsigned char szEncName; //NameSizeTable[0xFF-szName]
+		unsigned int uiEncNameCrc;
+		unsigned char szEncName;          // NameSizeTable[0xFF-szName]
 		char aEncName[256];
 		unsigned char ucFileType;
-		bool isCompFlag;
+		unsigned char isCompFlag;
 		unsigned int uiDecompSize;
 		unsigned int uiCompSize;
 		unsigned long long ullDataOffset;
-		unsigned int uiDataCrc;// MurmurHash
+		unsigned int uiDataCrc;           // MurmurHash
 	};
 	#pragma pack()
 }

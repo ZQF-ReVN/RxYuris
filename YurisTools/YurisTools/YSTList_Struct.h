@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace YSTList_Stuct
+namespace YSTList_Struct
 {
     //from https://github.com/arcusmaximus/VNTranslationTools/blob/main/VNTextPatch.Shared/Scripts/Yuris/Notes.txt
 

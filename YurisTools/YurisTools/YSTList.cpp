@@ -6,7 +6,7 @@
 #include <shlobj_core.h>
 #include <fstream>
 
-using namespace YSTList_Stuct;
+using namespace YSTList_Struct;
 
 YSTList::YSTList(std::wstring wsYSTListFile) :
 	m_pYSTList(nullptr)

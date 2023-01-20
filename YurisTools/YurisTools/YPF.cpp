@@ -23,7 +23,7 @@ YPF::~YPF()
 
 unsigned char YPF::GetNameSize(unsigned char szEncFileName)
 {
-	static char static_NameSizeTable[] =
+	static unsigned char static_NameSizeTable[] =
 	{
 		0x00,0x01,0x02,0x0A,0x04,0x05,0x35,0x07,0x08,0x0B,0x03,0x09,0x10,0x13,0x0E,0x0F,
 		0x0C,0x18,0x12,0x0D,0x2E,0x1B,0x16,0x17,0x11,0x19,0x1A,0x15,0x1E,0x1D,0x1C,0x1F,
@@ -50,12 +50,12 @@ void YPF::DecodeName(char* lpEncFileName, size_t szFileName)
 {
 	if (szFileName > 0)
 	{
-		for (size_t ite = 0; ite < szFileName; ++ite)
+		for (size_t ite = 0; ite < szFileName; ite++)
 		{
 			lpEncFileName[ite] = -lpEncFileName[ite] - 1;
 		}
 
-		for (size_t ite = 0; ite < szFileName; ++ite)
+		for (size_t ite = 0; ite < szFileName; ite++)
 		{
 			lpEncFileName[ite] ^= 0x36u;
 		}
@@ -73,27 +73,31 @@ void YPF::InitIndex()
 	m_ifsYPF.read(pIndex, m_Header.uiIndexBlockSize);
 
 	char* pEntry = pIndex;
-
 	for (size_t iteEntry = 0; iteEntry < m_Header.uiIndexEntryCount; iteEntry++)
 	{
+		//Processing the first two members
+		m_Entry.uiEncNameCrc = *(unsigned int*)(pEntry);
 		m_Entry.szEncName = GetNameSize(*(pEntry + 0x4));
-		m_Entry.uiNameCrc = *(unsigned int*)(pEntry);
+
+		//Copy encrypted file name
 		memcpy(m_Entry.aEncName, pEntry + 0x5, m_Entry.szEncName);
 		pEntry += 0x5 + m_Entry.szEncName;
-		memcpy(&m_Entry.ucFileType, pEntry, sizeof(YPFEntry_V5) - 256 - 5);
-		pEntry += sizeof(YPFEntry_V5) - 256 - 5;
+
+		//Copy remaining members
+		memcpy(&m_Entry.ucFileType, pEntry, sizeof(YPFEntry_V5) - sizeof(m_Entry.aEncName) - 5);
+		pEntry += sizeof(YPFEntry_V5) - sizeof(m_Entry.aEncName) - 5;
 
 		DecodeName(m_Entry.aEncName, m_Entry.szEncName);
 
 		m_vecEntry.emplace_back(m_Entry);
 	}
+	pEntry = nullptr;
 
 	delete[] pIndex;
 	pIndex = nullptr;
-	pEntry = nullptr;
 }
 
-void YPF::DecodeFile()
+void YPF::DecodeFile_WZ()
 {
 	m_ifsYPF.close();
 

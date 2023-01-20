@@ -38,13 +38,13 @@
     <ClInclude Include="YPF.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="YSTB_Stuct.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="YSTList_Struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="YPF_Struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="YSTB_Struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

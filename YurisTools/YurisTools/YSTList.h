@@ -8,8 +8,8 @@ private:
     char* m_pYSTList;
     std::wstring m_wsCurrentDir;
     std::wstring m_wsYSTListFile;
-    std::vector<YSTList_Stuct::ScriptPath> m_vecScriptPathList;
-    std::vector<YSTList_Stuct::ScriptInfo_V5> m_vecScriptInfoList;
+    std::vector<YSTList_Struct::ScriptPath> m_vecScriptPathList;
+    std::vector<YSTList_Struct::ScriptInfo_V5> m_vecScriptInfoList;
 
 private:
     bool GetScriptInfo();

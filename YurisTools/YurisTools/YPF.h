@@ -21,7 +21,8 @@ public:
 	YPF(std::wstring wsFile);
 	~YPF();
 
-	void DecodeFile();
+	//用于处理屋子对YPF的加密
+	void DecodeFile_WZ();
 
 private:
 

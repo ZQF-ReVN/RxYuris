@@ -28,7 +28,7 @@
     <ClInclude Include="YPF.h" />
     <ClInclude Include="YPF_Struct.h" />
     <ClInclude Include="YSTB.h" />
-    <ClInclude Include="YSTB_Stuct.h" />
+    <ClInclude Include="YSTB_Struct.h" />
     <ClInclude Include="YSTList.h" />
     <ClInclude Include="YSTList_Struct.h" />
   </ItemGroup>
