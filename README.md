@@ -16,8 +16,9 @@ Support version v.2xx - v.5xx
 Decrypt YSTB file  
 Support version v.2xx - v.5xx  
 
-# YPFDecodeFile_WZ
-Decrypt YPF file encrypted by the paid Chineseization group  
-
 # YSTLMakeDirStructure
 Recover the file name and directory structure of ybn files from YSTL files  
+Support version v.3xx - v.5xx  
+
+# YPFDecodeFile_WZ
+Decrypt YPF file encrypted by the paid Chineseization group  
