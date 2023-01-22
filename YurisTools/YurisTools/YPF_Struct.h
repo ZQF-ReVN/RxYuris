@@ -4,8 +4,8 @@ namespace YPF_Struct
 {
 	/*
 	* YPF_File
-	* - YPFHeader
-	* - YPFEntry[YPFHeader->uiIndexEntryCount]
+	* - YPFHeader_V2
+	* - YPFEntry[YPFHeader_V2->uiIndexEntryCount]
 	* - Data
 	*/
 
@@ -25,9 +25,9 @@ namespace YPF_Struct
 	#pragma pack(1)
 	struct YPFEntry_V5
 	{
-		unsigned int uiEncNameCrc;
-		unsigned char szEncName;          // NameSizeTable[0xFF-szName]
-		char aEncName[256];
+		unsigned int uiRelativePathCrc;
+		unsigned char szRelativePath;          // NameSizeTable[0xFF-szName]
+		char aRelativePath[256];
 		unsigned char ucFileType;
 		unsigned char isCompFlag;
 		unsigned int uiDecompSize;

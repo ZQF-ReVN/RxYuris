@@ -14,7 +14,7 @@ void MakeDir()
 	std::cout 
 		<< "input m make directary and rename .ybn to real file name.\n"
 		<< "input r restore file and file name from directory.\n"
-		<< "input c count how much text is in file.\n\n"
+		<< "input i exporting information to text.\n\n"
 		<< "input:";
 	std::cin >> flag;
 	std::cout << std::endl;
@@ -22,20 +22,20 @@ void MakeDir()
 	YSTList yst(fileName);
 	if (flag == 'm')
 	{
-		yst.MakeDir();
+		yst.MakeDirStructure();
 		std::cout << "Save As ysbin_MakeDir\n";
 	}
 
-	if (flag == 'r')
-	{
-		yst.RestoreDir();
-		std::cout << "Save As ysbin_RestoreDir\n";
-	}
+	//if (flag == 'r')
+	//{
+	//	yst.RestoreDir();
+	//	std::cout << "Save As ysbin_RestoreDir\n";
+	//}
 
-	if (flag == 'c')
+	if (flag == 'i')
 	{
-		yst.TextCount();
-		std::cout << "Save As TextCout.txt\n";
+		yst.PrintIndexToFile();
+		std::cout << "Save As YSTList_Info.txt\n";
 	}
 
 	system("pause");
@@ -75,7 +75,7 @@ void GuassKey()
 
 int main(int argc, char* argv[])
 {
-	MakeDir();
+	//MakeDir();
 	//YPF ypf(L"update1.ypf");
 	//ypf.DecodeFile();
 	//YSTB::TextDump_V2("yst00034.ybn",936);

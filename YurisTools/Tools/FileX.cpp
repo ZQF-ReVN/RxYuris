@@ -1,5 +1,8 @@
 #include "FileX.h"
 
+#include <Windows.h>
+
+
 std::string FileX::GetCurrentDirectoryPath()
 {
 	std::string path;
@@ -18,7 +21,7 @@ std::string FileX::GetCurrentDirectoryPath()
 	}
 }
 
-std::string FileX::BackSlash(LPCSTR lpPath)
+std::string FileX::BackSlash(const char* lpPath)
 {
 	std::string path = lpPath;
 
@@ -35,6 +38,23 @@ std::string FileX::BackSlash(LPCSTR lpPath)
 	}
 
 	return path;
+}
+
+void FileX::BackSlash(std::string& strPath, const char* lpPath)
+{
+	strPath = lpPath;
+
+	for (size_t position = 0; position = strPath.find('/', position); )
+	{
+		if (position != std::string::npos)
+		{
+			strPath[position] = '\\';
+		}
+		else
+		{
+			break;
+		}
+	}
 }
 
 std::streamsize FileX::GetFileSize(std::ifstream& fsFile)

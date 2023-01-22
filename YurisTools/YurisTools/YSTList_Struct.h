@@ -6,64 +6,47 @@ namespace YSTList_Struct
     //from https://github.com/arcusmaximus/VNTranslationTools/blob/main/VNTextPatch.Shared/Scripts/Yuris/Notes.txt
 
     /*
-    * YSTLFile_V5
-    * {
-    *   YSTListHeader
-    *   ScriptInfo[YSTListHeader.iScriptCount]
-    * }
-    */
-    struct YSTListHeader_V5
-    {
-        char aSignature[4]; //YSTL
-        int iVersion;
-        int iScriptCount;
-        //ScriptInfo_V5[iScriptCount];
-    };
-
-    struct ScriptInfo_V5
-    {
-        int iIndex;
-        int iPathLength;
-        //char PathName[iPathLength];
-        int iHighDateTime;
-        int iLowDateTime;
-        int iVariableCount;
-        int iLabelCount;
-        int iTextCount;
-        char* lpPath; //Not part of the original
-    };
-
-    /*
     * YSTLFile_V2
     * {
-    *   YSTListHeader
-    *   ScriptInfo_V2[YSTListHeader.iScriptCount]
+    *   YSTListHeader_V2
+    *   YSTListEntry_V2[YSTListHeader_V2.iScriptCount]
     * }
     */
     struct YSTListHeader_V2
     {
-        char aSignature[4]; //YSTL
-        int iVersion;
-        int iScriptCount;
-        //ScriptInfo_V2[iScriptCount];
+        char aSignature[4];               // YSTL
+        unsigned int uiVersion;
+        unsigned int uiEntryCount;
     };
 
-    struct ScriptInfo_V2
+    struct YSTListEntry_V2
     {
-        int iIndex;
-        int iPathLength;
-        //char PathName[iPathLength];
-        int iHighDateTime;
-        int iLowDateTime;
-        int iUnknow00;
-        int iUnknow01;
-        char* lpPath; //Not part of the original
+        unsigned int uiSequence;
+        unsigned int szRelativePath;
+        char aRelativePath[256];          // aRelativePath[szRelativePath]
+        unsigned int uiHighDateTime;
+        unsigned int uiLowDateTime;
+        unsigned int uiUnknow00;
+        unsigned int uiUnknow01;
     };
 
-    struct ScriptPath
+
+    /*
+    * YSTLFile_V5
+    * {
+    *   YSTListHeader_V2
+    *   YSTListEntry_V5[YSTListHeader_V2.iScriptCount]
+    * }
+    */
+    struct YSTListEntry_V5
     {
-        std::wstring wsYbn;
-        std::wstring wsPath;
-        int iTextCount;
+        unsigned int uiSequence;
+        unsigned int szRelativePath;
+        char aRelativePath[256];          // uiPathLength[szRelativePath]
+        unsigned int uiHighDateTime;
+        unsigned int uiLowDateTime;
+        unsigned int uiVariableCount;
+        unsigned int uiLabelCount;
+        unsigned int uiTextCount;
     };
 }

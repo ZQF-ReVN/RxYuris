@@ -11,13 +11,11 @@ using namespace YSTB_Struct;
 
 bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 {
-	std::locale cvtUTF8 = CVTString::GetCVT();
-
 	CopyFileA(strYSTB.c_str(), (strYSTB + ".new").c_str(), FALSE);
 	strYSTB.append(".new");
 
 	std::wifstream wiText(strYSTB + ".txt");
-	wiText.imbue(cvtUTF8);
+	wiText.imbue(CVTString::GetCVT_UTF8());
 	std::fstream ioYSTB(strYSTB, std::ios::in | std::ios::out | std::ios::binary);
 	if (wiText.is_open() && ioYSTB.is_open())
 	{
@@ -83,11 +81,9 @@ bool YSTB::TextInset_V2(std::string strYSTB, unsigned int uiCodePage)
 
 bool YSTB::TextDump_V2(std::string strYSTB, unsigned int uiCodePage)
 {
-	std::locale cvtUTF8 = CVTString::GetCVT();
-
 	std::ifstream iYSTB(strYSTB, std::ios::binary);
 	std::wofstream woText(strYSTB + ".new.txt");
-	woText.imbue(cvtUTF8);
+	woText.imbue(CVTString::GetCVT_UTF8());
 	if (iYSTB.is_open() && woText.is_open())
 	{
 		char* pYSTB = nullptr;

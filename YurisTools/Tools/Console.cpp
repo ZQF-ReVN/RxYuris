@@ -1,45 +1,62 @@
 #include "Console.h"
 
 
-DWORD WINAPI SetConsoleTop(LPVOID lpParameter)
+BOOL __stdcall SetConsoleTop(LPVOID lpParameter)
 {
-	HWND hConsole = 0;
-	WCHAR consoleTitle[256] = { 0 };
+	HWND consoleHWND = NULL;
+	WCHAR consoleTitle[MAX_PATH] = { 0 };
 
-	while (true)
+	for (size_t ite = 20; ite-->0;)
 	{
-		GetConsoleTitleW(consoleTitle, 256);
-		hConsole = FindWindowW(NULL, (LPWSTR)consoleTitle);
-		if (hConsole != NULL)
+		GetConsoleTitleW(consoleTitle, MAX_PATH);
+		consoleHWND = FindWindowW(NULL, (LPWSTR)consoleTitle);
+		if (consoleHWND != NULL)
 		{
-			SetWindowPos(hConsole, HWND_TOPMOST, NULL, NULL, NULL, NULL, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-			break;
+			SetWindowPos(consoleHWND, HWND_TOPMOST, NULL, NULL, NULL, NULL, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+			return TRUE;
 		}
+
+		Sleep(1000);
 	}
 
-	return 0;
+	MessageBoxW(NULL, L"Topmost Console Window Failed!", NULL, NULL);
+	return FALSE;
+}
+
+VOID __stdcall SetConsoleNoQuickEdit()
+{
+	DWORD mode = 0;
+	GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &mode);
+	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), mode & ~ENABLE_QUICK_EDIT_MODE);
+}
+
+VOID __stdcall SetConsoleLocale()
+{
+	//system("chcp 65001");
+	//system("chcp 936");
+	setlocale(LC_ALL, "chs");
+	//std::locale::global(std::locale(""));
+}
+
+FILE* __stdcall SetConsoleSTDIO()
+{
+	FILE* fpConsole = NULL;
+
+	freopen_s(&fpConsole, "CONIN$", "r+t", stdin);
+	freopen_s(&fpConsole, "CONOUT$", "w+t", stdout);
+
+	return fpConsole;
 }
 
 FILE* Console::SetConsole(LPCWSTR lpTitle)
 {
-	DWORD mode = 0;
-	FILE* fpStreamConsole = 0;
-
 	AllocConsole();
 	AttachConsole(ATTACH_PARENT_PROCESS);
-	freopen_s(&fpStreamConsole, "CONIN$", "r+t", stdin);
-	freopen_s(&fpStreamConsole, "CONOUT$", "w+t", stdout);
 
 	SetConsoleTitleW(lpTitle);
-
 	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)SetConsoleTop, NULL, NULL, NULL);
+	SetConsoleNoQuickEdit();
+	SetConsoleLocale();
 
-	GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &mode);
-	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), mode & ~ENABLE_QUICK_EDIT_MODE);
-
-	//system("chcp 65001");
-	//setlocale(LC_ALL, "chs");
-	std::locale::global(std::locale(""));
-
-	return fpStreamConsole;
+	return SetConsoleSTDIO();
 }

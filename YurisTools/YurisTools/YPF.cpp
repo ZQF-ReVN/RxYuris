@@ -3,7 +3,7 @@
 using namespace YPF_Struct;
 
 YPF::YPF(std::wstring wsFile) :
-	m_Header({ 0 }), m_Entry({ 0 }),
+	m_Header({ 0 }),
 	m_wsYPF(wsFile)
 {
 	m_ifsYPF.open(m_wsYPF, std::ios::binary);
@@ -21,7 +21,7 @@ YPF::~YPF()
 	}
 }
 
-unsigned char YPF::GetNameSize(unsigned char szEncFileName)
+unsigned char YPF::DecodePathSize(unsigned char szEncFileName)
 {
 	static unsigned char static_NameSizeTable[] =
 	{
@@ -46,7 +46,7 @@ unsigned char YPF::GetNameSize(unsigned char szEncFileName)
 	return static_NameSizeTable[0xFF - szEncFileName];
 }
 
-void YPF::DecodeName(char* lpEncFileName, size_t szFileName)
+void YPF::DecodePathName(char* lpEncFileName, size_t szFileName)
 {
 	if (szFileName > 0)
 	{
@@ -59,8 +59,6 @@ void YPF::DecodeName(char* lpEncFileName, size_t szFileName)
 		{
 			lpEncFileName[ite] ^= 0x36u;
 		}
-
-		lpEncFileName[szFileName] = '\0';
 	}
 }
 
@@ -73,23 +71,25 @@ void YPF::InitIndex()
 	m_ifsYPF.read(pIndex, m_Header.uiIndexBlockSize);
 
 	char* pEntry = pIndex;
+	YPF_Struct::YPFEntry_V5 Entry = { 0 };
 	for (size_t iteEntry = 0; iteEntry < m_Header.uiIndexEntryCount; iteEntry++)
 	{
 		//Processing the first two members
-		m_Entry.uiEncNameCrc = *(unsigned int*)(pEntry);
-		m_Entry.szEncName = GetNameSize(*(pEntry + 0x4));
+		Entry.uiRelativePathCrc = *(unsigned int*)(pEntry);
+		Entry.szRelativePath = DecodePathSize(*(pEntry + 0x4));
 
 		//Copy encrypted file name
-		memcpy(m_Entry.aEncName, pEntry + 0x5, m_Entry.szEncName);
-		pEntry += 0x5 + m_Entry.szEncName;
+		memcpy(Entry.aRelativePath, pEntry + 0x5, Entry.szRelativePath);
+		Entry.aRelativePath[Entry.szRelativePath] = '\0';
+		pEntry += 0x5 + Entry.szRelativePath;
 
 		//Copy remaining members
-		memcpy(&m_Entry.ucFileType, pEntry, sizeof(YPFEntry_V5) - sizeof(m_Entry.aEncName) - 5);
-		pEntry += sizeof(YPFEntry_V5) - sizeof(m_Entry.aEncName) - 5;
+		memcpy(&Entry.ucFileType, pEntry, sizeof(Entry) - sizeof(Entry.aRelativePath) - 5);
+		pEntry += sizeof(Entry) - sizeof(Entry.aRelativePath) - 5;
 
-		DecodeName(m_Entry.aEncName, m_Entry.szEncName);
+		DecodePathName(Entry.aRelativePath, Entry.szRelativePath);
 
-		m_vecEntry.emplace_back(m_Entry);
+		m_vecEntry.emplace_back(Entry);
 	}
 	pEntry = nullptr;
 
@@ -104,22 +104,22 @@ void YPF::DecodeFile_WZ()
 	std::fstream ioYPF(m_wsYPF, std::ios::in | std::ios::out | std::ios::binary);
 	if (ioYPF.is_open())
 	{
-		unsigned int tmp = 0;
-		unsigned int tmp2 = 0;
+		unsigned int tmp0 = 0;
+		unsigned int tmp1 = 0;
 		for (auto& iteEntry : m_vecEntry)
 		{
 			ioYPF.seekg(iteEntry.ullDataOffset);
-			ioYPF.read((char*)&tmp, 4);
-			ioYPF.read((char*)&tmp2, 4);
+			ioYPF.read((char*)&tmp0, 4);
+			ioYPF.read((char*)&tmp1, 4);
 
-			if ((tmp ^ (tmp & 0xFFFFFF00)) == 0x5A)
+			if ((tmp0 ^ (tmp0 & 0xFFFFFF00)) == 0x5A)
 			{
-				tmp ^= 0x0040FB22;
-				tmp2 ^= iteEntry.uiCompSize;
+				tmp0 ^= 0x0040FB22;
+				tmp1 ^= iteEntry.uiCompSize;
 
 				ioYPF.seekp(iteEntry.ullDataOffset);
-				ioYPF.write((char*)&tmp, 4);
-				ioYPF.write((char*)&tmp2, 4);
+				ioYPF.write((char*)&tmp0, 4);
+				ioYPF.write((char*)&tmp1, 4);
 			}
 
 		}

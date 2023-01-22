@@ -4,158 +4,130 @@
 
 #include <Windows.h>
 #include <shlobj_core.h>
+#include <shlwapi.h>
 #include <fstream>
 
 using namespace YSTList_Struct;
 
-YSTList::YSTList(std::wstring wsYSTListFile) :
-	m_pYSTList(nullptr)
+YSTList::YSTList(std::wstring wsYSTList) :
+	m_Header{ 0 },
+	m_wsYSTList(wsYSTList)
 {
-	m_wsYSTListFile = wsYSTListFile;
-
-	wchar_t currentDir[MAX_PATH] = { 0 };
-	GetCurrentDirectoryW(0xFF, currentDir);
-	m_wsCurrentDir = currentDir;
-
-	if (GetScriptInfo())
-	{
-		GetMakeDirInfo();
-	}
+	m_ifsYSTlist.open(m_wsYSTList, std::ios::binary);
+	InitIndex();
 }
 
 YSTList::~YSTList()
 {
-	if (m_pYSTList)
+	if (m_ifsYSTlist.is_open())
 	{
-		delete[] m_pYSTList;
+		m_ifsYSTlist.close();
 	}
 }
 
-bool YSTList::GetScriptInfo()
+bool YSTList::InitIndex()
 {
-	size_t scriptCount = 0;
-	std::streamsize szFile = 0;
+	if (!m_ifsYSTlist.is_open()) return false;
 
-	std::ifstream iYstList(m_wsYSTListFile, std::ios::binary);
-	if (iYstList.is_open())
+	char* pIndex = nullptr;
+	m_ifsYSTlist.read(reinterpret_cast<char*>(&m_Header), sizeof(m_Header));
+	pIndex = new char[static_cast<size_t>(FileX::GetFileSize(m_ifsYSTlist)) - sizeof(m_Header)];
+	m_ifsYSTlist.read(pIndex, FileX::GetFileSize(m_ifsYSTlist) - sizeof(m_Header));
+
+	char* pEntry = pIndex;
+	YSTList_Struct::YSTListEntry_V5 Entry = { 0 };
+	for (size_t iteEntry = 0; iteEntry < m_Header.uiEntryCount; iteEntry++)
 	{
-		szFile = FileX::GetFileSize(iYstList);
-		if (!szFile)
-		{
-			iYstList.close();
-			return false;
-		}
+		Entry.uiSequence = *(unsigned int*)(pEntry + 0);
+		Entry.szRelativePath = *(unsigned int*)(pEntry + 0x4);
 
-		m_pYSTList = new char[static_cast<size_t>(szFile)];
-		if (!m_pYSTList)
-		{
-			iYstList.close();
-			return false;
-		}
+		memcpy(Entry.aRelativePath, pEntry + 0x8, Entry.szRelativePath);
+		Entry.aRelativePath[Entry.szRelativePath] = '\0';
+		pEntry += Entry.szRelativePath + 0x8;
 
-		iYstList.read(m_pYSTList, szFile);
+		memcpy(&Entry.uiHighDateTime, pEntry, sizeof(Entry) - sizeof(Entry.aRelativePath) - 8);
+		pEntry += 20;
 
-		if (*(unsigned int*)(((YSTListHeader_V5*)m_pYSTList)->aSignature) == 0x4C545359)
-		{
-			scriptCount = ((YSTListHeader_V5*)m_pYSTList)->iScriptCount;
-		}
-
-		ScriptInfo_V5 si = { 0 };
-		ScriptInfo_V5* pInfoStart = (ScriptInfo_V5*)(m_pYSTList + sizeof(YSTListHeader_V5));
-		for (size_t iteYst = 0; iteYst < scriptCount; iteYst++)
-		{
-			si.iIndex = pInfoStart->iIndex;
-			si.iPathLength = pInfoStart->iPathLength;
-			si.lpPath = (char*)&pInfoStart->iPathLength + 0x4;
-			pInfoStart = (ScriptInfo_V5*)((char*)pInfoStart + si.iPathLength);
-			si.iLowDateTime = pInfoStart->iLowDateTime;
-			si.iHighDateTime = pInfoStart->iHighDateTime;
-			si.iVariableCount = pInfoStart->iVariableCount;
-			si.iLabelCount = pInfoStart->iLabelCount;
-			si.iTextCount = pInfoStart->iTextCount;
-
-			m_vecScriptInfoList.push_back(si);
-			pInfoStart = (ScriptInfo_V5*)((char*)pInfoStart + sizeof(ScriptInfo_V5) - 0x4);
-		}
-		pInfoStart = nullptr;
-
-		iYstList.close();
-		return true;
+		m_vecEntry.emplace_back(Entry);
 	}
+	pEntry = nullptr;
 
-	return false;
+	delete[] pIndex;
+	pIndex = nullptr;
+
+	return true;
 }
 
-void YSTList::GetMakeDirInfo()
+bool YSTList::PrintIndexToFile()
 {
-	ScriptPath dirInfo;
-	std::string scriptFullPath;
-	wchar_t fileName[13] = { 0 };
+	std::wofstream woText(L"YSTList_Info.txt");
+	woText.imbue(CVTString::GetCVT_UTF8());
+	if (!woText.is_open()) return false;
 
-	for (ScriptInfo_V5& iteScriptInfo : m_vecScriptInfoList)
+	std::string mPath;
+	std::wstring wPath;
+	wchar_t aYSTB[13] = { 0 };
+	for (auto& iteEntry : m_vecEntry)
 	{
-		wsprintfW(fileName, L"yst%05d.ybn", iteScriptInfo.iIndex);
-		iteScriptInfo.lpPath[iteScriptInfo.iPathLength] = L'\0';
-		scriptFullPath = iteScriptInfo.lpPath;
+		swprintf_s(aYSTB, L"yst%05d.ybn", iteEntry.uiSequence);
+		woText << L"YSTB File   :" << aYSTB << L'\n';
 
-		dirInfo.wsYbn = fileName;
-		CVTString::StrToWStr(scriptFullPath, dirInfo.wsPath, 932);
-		dirInfo.iTextCount = iteScriptInfo.iTextCount;
+		mPath = iteEntry.aRelativePath;
+		CVTString::StrToWStr(mPath, wPath, 932);
+		woText << L"RelativePath:" << wPath << L'\n';
 
-		m_vecScriptPathList.push_back(dirInfo);
+		woText << L"TextCount   :" << iteEntry.uiTextCount << L"\n\n";
 	}
+
+	woText.flush();
+	woText.close();
+	return true;
 }
 
-void YSTList::TextCount()
+bool YSTList::MakeDirStructure()
 {
-	std::locale cvtUTF8 = CVTString::GetCVT();
-
-	std::wofstream oTextCout(L"TextCount.txt");
-	oTextCout.imbue(cvtUTF8);
-
-	if (oTextCout.is_open())
+	//Get Work Dir
+	const wchar_t makeDir[] = L"Make\\";
+	wchar_t workDir[MAX_PATH] = { 0 };
+	DWORD szWorkPath = GetCurrentDirectoryW(MAX_PATH, workDir);
+	if (szWorkPath < MAX_PATH)
 	{
-		for (ScriptPath& iteDirInfo : m_vecScriptPathList)
+		workDir[szWorkPath] = L'\\';
+		memcpy(&(workDir[szWorkPath + 1]), makeDir, sizeof(makeDir));
+	}
+	else
+	{
+		return false;
+	}
+
+
+	std::string relaPath;
+	std::wstring fullPath;
+	std::wstring fullDir;
+	wchar_t aYSTB[13] = { 0 };
+	for (auto& iteEntry : m_vecEntry)
+	{
+		//Get Full Path
+		FileX::BackSlash(relaPath, iteEntry.aRelativePath);
+		CVTString::StrToWStr(relaPath, fullPath, 932);
+		fullPath.insert(0, workDir);
+
+		//Get Full Dir
+		size_t pos = fullPath.find_last_of(L"\\");
+		if (pos != std::wstring::npos)
 		{
-			if (iteDirInfo.iTextCount)
-			{
-				oTextCout << iteDirInfo.wsPath << L'\n' << iteDirInfo.wsYbn << L"\n" << L"TextCount:" << iteDirInfo.iTextCount << '\n' << std::endl;
-			}
+			fullDir = fullPath.substr(0, pos + 1);
 		}
 
-		oTextCout.flush();
-		oTextCout.close();
+		//Create Dir
+		SHCreateDirectoryExW(NULL, fullDir.c_str(), NULL);
+		
+		//Get YSTB File Name
+		swprintf_s(aYSTB, L"yst%05d.ybn", iteEntry.uiSequence);
+
+		//Copy File
+		CopyFileW(aYSTB, fullPath.c_str(), FALSE);
 	}
 
-}
-
-void YSTList::MakeDir()
-{
-	std::locale cvtUTF8 = CVTString::GetCVT();
-
-	std::wofstream oMakeDir(L"MakeDir.txt");
-	oMakeDir.imbue(cvtUTF8);
-	if (oMakeDir.is_open())
-	{
-		std::wstring currentDir = m_wsCurrentDir + L"\\ysbin_MakeDir\\";
-		for (ScriptPath& iteScriptPath : m_vecScriptPathList)
-		{
-			SHCreateDirectoryExW(NULL, (currentDir + iteScriptPath.wsPath.substr(0, iteScriptPath.wsPath.rfind(L'\\'))).c_str(), NULL);
-			CopyFileW(iteScriptPath.wsYbn.c_str(), (currentDir + iteScriptPath.wsPath + L".ybn").c_str(), FALSE);
-			oMakeDir << iteScriptPath.wsYbn << L'\n';
-			oMakeDir << iteScriptPath.wsPath << L'\n' << L'\n';
-		}
-
-		oMakeDir.flush();
-		oMakeDir.close();
-	}
-}
-
-void YSTList::RestoreDir()
-{
-	CreateDirectoryW(L"ysbin_RestoreDir", NULL);
-	for (ScriptPath& iteDirInfo : m_vecScriptPathList)
-	{
-		CopyFileW((L"ysbin_MakeDir\\" + iteDirInfo.wsPath + L".ybn").c_str(), (L"ysbin_RestoreDir\\" + iteDirInfo.wsYbn).c_str(), FALSE);
-	}
+	return true;
 }

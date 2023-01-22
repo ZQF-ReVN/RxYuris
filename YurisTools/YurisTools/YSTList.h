@@ -1,25 +1,23 @@
 #pragma once
 #include <vector>
+#include <fstream>
 #include "YSTList_Struct.h"
 
 class YSTList
 {
 private:
-    char* m_pYSTList;
-    std::wstring m_wsCurrentDir;
-    std::wstring m_wsYSTListFile;
-    std::vector<YSTList_Struct::ScriptPath> m_vecScriptPathList;
-    std::vector<YSTList_Struct::ScriptInfo_V5> m_vecScriptInfoList;
+    std::wstring m_wsYSTList;
+    std::ifstream m_ifsYSTlist;
+    YSTList_Struct::YSTListHeader_V2 m_Header;
+    std::vector<YSTList_Struct::YSTListEntry_V5> m_vecEntry;
 
 private:
-    bool GetScriptInfo();
-    void GetMakeDirInfo();
+    bool InitIndex();
 
 public:
-    YSTList(std::wstring wsYSTListFile);
+    YSTList(std::wstring wsYSTList);
     ~YSTList();
 
-    void MakeDir();
-    void RestoreDir();
-    void TextCount();
+    bool PrintIndexToFile();
+    bool MakeDirStructure();
 };
