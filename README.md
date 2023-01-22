@@ -1,24 +1,28 @@
 # YurisTools
 A Tool For Processing YU-RIS Engine  
 # To Do List
-[o] YSTB Dec (v.2xx - v.5xx)  
-[o] YSTB Text Dump (v.2xx - v2.99)  
-[o] YSTB Text Inset (v.2xx - v2.99)  
-[o] YSTList Restore Files Name (test v.5xx)  
-[x] YSTList Restore Files Name (v.2xx - v2.99)  
-[o] Guess YSTB Xor Key (v.2xx - v.5xx)   
+[o] YSTB Dec (v.2.xx - v.5。xx)  
+[o] YSTB Text Dump (v.2.xx - v2.99)  
+[o] YSTB Text Inset (v.2.xx - v2.99)  
+[o] YSTList Restore Files Name (test v.5.xx)  
+[x] YSTList Restore Files Name (v.2.xx - v2.99)  
+[o] Guess YSTB Xor Key (v.2.xx - v.5.xx)   
 
 # YSTBGuessKey
 Guess the key of YSTB  
-Support version v.2xx - v.5xx  
+Supported version v.2.xx - v.5.xx  
 
 # YSTBXorFile
 Decrypt YSTB file  
-Support version v.2xx - v.5xx  
+Supported version v.2.xx - v.5.xx  
+
+# YSTBV2TextEditor
+Import and export the dialogue text of the game in YSTB  
+Supported version v.2.xx - v.2.99 
 
 # YSTLMakeDirStructure
 Recover the file name and directory structure of ybn files from YSTL files  
-Support version v.3xx - v.5xx  
+Supported version v.3.xx - v.5.xx  
 
 # YPFDecodeFile_WZ
 Decrypt YPF file encrypted by the paid Chineseization group  
