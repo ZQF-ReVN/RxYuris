@@ -2,8 +2,10 @@
 
 #include "..\YurisStaticLibrary\YSTL.h"
 
+using namespace YurisStaticLibrary;
 
-void MakeDirStructure()
+
+void YSTLStructure()
 {
 	auto fileName = LR"(yst_list.ybn)";
 	char flag = 0;
@@ -19,7 +21,7 @@ void MakeDirStructure()
 	YSTList yst(fileName);
 	if (flag == 'm')
 	{
-		yst.MakeDirStructure();
+		yst.MakeStructure();
 		std::cout << "Save As ysbin_MakeDir\n";
 	}
 
@@ -40,5 +42,5 @@ void MakeDirStructure()
 
 int main()
 {
-	MakeDirStructure();
+	YSTLStructure();
 }

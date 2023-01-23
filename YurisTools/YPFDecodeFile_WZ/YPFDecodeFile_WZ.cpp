@@ -2,6 +2,8 @@
 
 #include "..\YurisStaticLibrary\YPF.h"
 
+using namespace YurisStaticLibrary;
+
 
 int wmain(int argc, wchar_t* argv[])
 {

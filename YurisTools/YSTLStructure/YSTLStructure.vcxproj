@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{3f4afdfa-1650-454d-b2ab-430b6ea68c3d}</ProjectGuid>
-    <RootNamespace>YSTListTools</RootNamespace>
+    <ProjectGuid>{9b896fc6-b57a-46e2-a0a1-245fcf9a8ab3}</ProjectGuid>
+    <RootNamespace>YSTLStructure</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,7 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="YSTListTools.cpp" />
+    <ProjectReference Include="..\YurisStaticLibrary\YurisStaticLibrary.vcxproj">
+      <Project>{359cfe8e-e80f-4ec4-b6f7-9b477ce59ab0}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="YSTLStructure.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

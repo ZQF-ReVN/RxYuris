@@ -2,6 +2,9 @@
 
 #include "..\YurisStaticLibrary\YSTB.h"
 
+using namespace YurisStaticLibrary;
+
+
 void GuessKey()
 {
 	std::string fileName;

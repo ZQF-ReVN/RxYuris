@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSTBGuessKey", "YSTBGuessKe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSTBXorFile", "YSTBXorFile\YSTBXorFile.vcxproj", "{903D1685-F7D6-4B30-9CA3-78326462B464}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSTLMakeDirStructure", "YSTLMakeDirStructure\YSTLMakeDirStructure.vcxproj", "{91E355D5-004F-42DD-B914-27176DE9C73A}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YurisStaticLibrary", "YurisStaticLibrary\YurisStaticLibrary.vcxproj", "{359CFE8E-E80F-4EC4-B6F7-9B477CE59AB0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSTBV2TextEditor", "YSTBV2TextEditor\YSTBV2TextEditor.vcxproj", "{D0622DC4-8247-479C-896E-565C60DDC621}"
@@ -16,6 +14,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YPFDecodeFile_WZ", "YPFDecodeFile_WZ\YPFDecodeFile_WZ.vcxproj", "{28738615-0192-4C80-B9AF-57E86BDE67CB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TDA", "TDA\TDA.vcxproj", "{6025B745-02F7-47EA-9911-35649DA8CEA0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YSTLStructure", "YSTLStructure\YSTLStructure.vcxproj", "{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,14 +41,6 @@ Global
 		{903D1685-F7D6-4B30-9CA3-78326462B464}.Release|x64.Build.0 = Release|x64
 		{903D1685-F7D6-4B30-9CA3-78326462B464}.Release|x86.ActiveCfg = Release|Win32
 		{903D1685-F7D6-4B30-9CA3-78326462B464}.Release|x86.Build.0 = Release|Win32
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Debug|x64.ActiveCfg = Debug|x64
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Debug|x64.Build.0 = Debug|x64
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Debug|x86.ActiveCfg = Debug|Win32
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Debug|x86.Build.0 = Debug|Win32
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Release|x64.ActiveCfg = Release|x64
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Release|x64.Build.0 = Release|x64
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Release|x86.ActiveCfg = Release|Win32
-		{91E355D5-004F-42DD-B914-27176DE9C73A}.Release|x86.Build.0 = Release|Win32
 		{359CFE8E-E80F-4EC4-B6F7-9B477CE59AB0}.Debug|x64.ActiveCfg = Debug|x64
 		{359CFE8E-E80F-4EC4-B6F7-9B477CE59AB0}.Debug|x64.Build.0 = Debug|x64
 		{359CFE8E-E80F-4EC4-B6F7-9B477CE59AB0}.Debug|x86.ActiveCfg = Debug|Win32
@@ -81,6 +73,14 @@ Global
 		{6025B745-02F7-47EA-9911-35649DA8CEA0}.Release|x64.Build.0 = Release|x64
 		{6025B745-02F7-47EA-9911-35649DA8CEA0}.Release|x86.ActiveCfg = Release|Win32
 		{6025B745-02F7-47EA-9911-35649DA8CEA0}.Release|x86.Build.0 = Release|Win32
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Debug|x64.ActiveCfg = Debug|x64
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Debug|x64.Build.0 = Debug|x64
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Debug|x86.ActiveCfg = Debug|Win32
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Debug|x86.Build.0 = Debug|Win32
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Release|x64.ActiveCfg = Release|x64
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Release|x64.Build.0 = Release|x64
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Release|x86.ActiveCfg = Release|Win32
+		{9B896FC6-B57A-46E2-A0A1-245FCF9A8AB3}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

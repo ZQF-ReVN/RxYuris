@@ -2,6 +2,10 @@
 
 #include "..\YurisStaticLibrary\YSTB.h"
 
+using namespace YurisStaticLibrary;
+
+
+
 void TextEditor()
 {
 	char flag = 0;

@@ -2,6 +2,8 @@
 
 #include "..\YurisStaticLibrary\YSTB.h"
 
+using namespace YurisStaticLibrary;
+
 
 void XorFile(int argc, char* argv[])
 {
