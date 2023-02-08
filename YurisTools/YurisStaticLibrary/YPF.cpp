@@ -105,32 +105,30 @@ namespace YurisStaticLibrary
 		m_ifsYPF.close();
 
 		std::fstream ioYPF(m_wsYPF, std::ios::in | std::ios::out | std::ios::binary);
-		if (ioYPF.is_open())
+		if (!ioYPF.is_open()) return;
+
+		unsigned int tmp0 = 0;
+		unsigned int tmp1 = 0;
+		for (auto& iteEntry : m_vecEntry)
 		{
-			unsigned int tmp0 = 0;
-			unsigned int tmp1 = 0;
-			for (auto& iteEntry : m_vecEntry)
+			ioYPF.seekg(iteEntry.ullDataOffset);
+			ioYPF.read((char*)&tmp0, 4);
+			ioYPF.read((char*)&tmp1, 4);
+
+			if ((tmp0 ^ (tmp0 & 0xFFFFFF00)) == 0x5A)
 			{
-				ioYPF.seekg(iteEntry.ullDataOffset);
-				ioYPF.read((char*)&tmp0, 4);
-				ioYPF.read((char*)&tmp1, 4);
+				tmp0 ^= 0x0040FB22;
+				tmp1 ^= iteEntry.uiCompSize;
 
-				if ((tmp0 ^ (tmp0 & 0xFFFFFF00)) == 0x5A)
-				{
-					tmp0 ^= 0x0040FB22;
-					tmp1 ^= iteEntry.uiCompSize;
-
-					ioYPF.seekp(iteEntry.ullDataOffset);
-					ioYPF.write((char*)&tmp0, 4);
-					ioYPF.write((char*)&tmp1, 4);
-				}
-
+				ioYPF.seekp(iteEntry.ullDataOffset);
+				ioYPF.write((char*)&tmp0, 4);
+				ioYPF.write((char*)&tmp1, 4);
 			}
 
-			ioYPF.flush();
-			ioYPF.close();
 		}
 
+		ioYPF.flush();
+		ioYPF.close();
 	}
 
 }

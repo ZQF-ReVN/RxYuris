@@ -14,7 +14,7 @@ namespace YurisStaticLibrary
 	using namespace YSTL_Struct;
 	using namespace TDA;
 
-	YSTList::YSTList(std::wstring wsYSTL) :
+	YSTL::YSTL(std::wstring wsYSTL) :
 		m_Header{ 0 },
 		m_wsYSTL(wsYSTL)
 	{
@@ -22,7 +22,7 @@ namespace YurisStaticLibrary
 		InitIndex();
 	}
 
-	YSTList::~YSTList()
+	YSTL::~YSTL()
 	{
 		if (m_ifsYSTL.is_open())
 		{
@@ -30,7 +30,7 @@ namespace YurisStaticLibrary
 		}
 	}
 
-	bool YSTList::InitIndex()
+	bool YSTL::InitIndex()
 	{
 		if (!m_ifsYSTL.is_open()) return false;
 
@@ -63,7 +63,7 @@ namespace YurisStaticLibrary
 		return true;
 	}
 
-	bool YSTList::PrintIndexToFile()
+	bool YSTL::PrintIndexToFile()
 	{
 		std::wofstream woText(L"YSTList_Info.txt");
 		woText.imbue(CVTString::GetCVT_UTF8());
@@ -89,7 +89,7 @@ namespace YurisStaticLibrary
 		return true;
 	}
 
-	bool YSTList::MakeStructure()
+	bool YSTL::MakeStructure()
 	{
 		std::wstring makeDir;
 		FileX::GetWokrDir(makeDir, L"\\Make\\");
@@ -119,7 +119,7 @@ namespace YurisStaticLibrary
 		return true;
 	}
 
-	bool YSTList::BackStructure()
+	bool YSTL::BackStructure()
 	{
 		std::wstring makeDir;
 		FileX::GetWokrDir(makeDir, L"\\Make\\");

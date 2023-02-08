@@ -1,60 +1,110 @@
 #include <iostream>
+#include <vector>
 
+#include "..\TDA\EnumFiles.h"
 #include "..\YurisStaticLibrary\YSTB.h"
 
 using namespace YurisStaticLibrary;
-
+using std::vector;
+using std::wstring;
+using std::wcout;
+using std::wcin;
+using std::endl;
 
 
 void TextEditor()
 {
-	char flag = 0;
-	std::string fileName;
+	bool isAudioFlag = false;
+	wchar_t command = 0;
 	unsigned int exCodePage = 932;
 	unsigned int inCodePage = 936;
 
-	std::cout
-		<< "input e Extract text.\n"
-		<< "input i Insert text.\n"
-		<< "input c Change code page.\n\n"
-		<< "Current CodePage\n"
-		<< "Extract CodePage:" << exCodePage << '\n'
-		<< "Insert  CodePage:" << inCodePage << "\n\n"
-		<< "input:";
+	wstring basePathW = L".\\";
+	vector<wstring> filesNameListW;
+
+	wcout
+		<< L"input e Extract text.\n"
+		<< L"input i Insert text.\n"
+		<< L"input c Change code page.\n"
+		<< L"input a Extract with audio file names.\n\n"
+		<< L"Current CodePage\n"
+		<< L"Extract CodePage:" << exCodePage << L'\n'
+		<< L"Insert  CodePage:" << inCodePage << L"\n\n"
+		<< L"Place script files in current directory\n\n";
 
 	while (true)
 	{
-		std::cout << "input:";
-		std::cin >> flag;
+		wcout << L"input:";
+		wcin >> command;
 
-		switch (flag)
+		TDA::EnumFilesW enumFileW(basePathW);
+		filesNameListW = enumFileW.GetCurrentFilesName();
+
+		switch (command)
 		{
-		case 'e':
-			std::cout << "input filename:";
-			std::cin >> fileName;
-			YSTB::TextDump_V2(fileName, exCodePage);
-			break;
+		case L'a':
+		{
+			isAudioFlag = true;
+			wcout << L"The audio file name will be extracted \n";
+		}
+		break;
 
-		case 'i':
-			std::cout << "input filename:";
-			std::cin >> fileName;
-			YSTB::TextInset_V2(fileName, inCodePage);
-			break;
+		case L'e':
+		{
+			for (auto& iteFileName : filesNameListW)
+			{
+				if (iteFileName.find(L".ybn", iteFileName.size() - 4) != wstring::npos)
+				{
+					if (YSTB::TextDump_V2(iteFileName, exCodePage, isAudioFlag))
+					{
+						wcout << L"Save:" << iteFileName + L".txt" << L'\n';
+					}
+					else
+					{
+						wcout << L"Failed:" << iteFileName << L'\n';
+					}
+				}
+			}
+		}
+		break;
 
-		case 'c':
-			std::cout << "Extract CodePage:";
-			std::cin >> exCodePage;
-			std::cout << "Insert CodePage:";
-			std::cin >> inCodePage;
+		case L'i':
+		{
+			for (auto& iteFileName : filesNameListW)
+			{
+				if (iteFileName.find(L".ybn", iteFileName.size() - 4) != wstring::npos)
+				{
+					if (YSTB::TextInset_V2(iteFileName, inCodePage))
+					{
+						wcout << L"Save:" << iteFileName + L".new" << L'\n';
+					}
+					else
+					{
+						wcout << L"Failed:" << iteFileName << L'\n';
+					}
+				}
+			}
+		}
+		break;
 
-			std::cout << "CodePage has changed" << "\n\n";
-			std::cout
-				<< "Current CodePage\n"
-				<< "Extract CodePage:" << exCodePage << '\n'
-				<< "Insert  CodePage:" << inCodePage << std::endl;
+		case L'c':
+		{
+			wcout << L"Extract CodePage:";
+			wcin >> exCodePage;
+			wcout << L"Insert CodePage:";
+			wcin >> inCodePage;
+
+			wcout << L"CodePage has changed" << L"\n\n";
+			wcout
+				<< L"Current CodePage\n"
+				<< L"Extract CodePage:" << exCodePage << L'\n'
+				<< L"Insert  CodePage:" << inCodePage << endl;
+		}
+		break;
+
 		}
 
-		std::cout << std::endl;
+		wcout << endl;
 	}
 }
 

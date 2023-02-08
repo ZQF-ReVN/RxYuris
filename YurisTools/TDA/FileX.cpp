@@ -94,16 +94,28 @@ namespace TDA
 		}
 	}
 
-	std::streamsize FileX::GetFileSize(std::ifstream& fsFile)
-	{
-		std::streamsize szFile = 0;
-		std::streampos oldPos = fsFile.tellg();
+	//std::streamsize FileX::GetFileSize(std::ifstream& fsFile)
+	//{
+	//	std::streamsize szFile = 0;
+	//	std::streampos oldPos = fsFile.tellg();
 
-		fsFile.seekg(0, std::ios::end);
-		szFile = fsFile.tellg();
-		fsFile.seekg(oldPos, std::ios::beg);
+	//	fsFile.seekg(0, std::ios::end);
+	//	szFile = fsFile.tellg();
+	//	fsFile.seekg(oldPos, std::ios::beg);
 
-		return szFile;
-	}
+	//	return szFile;
+	//}
+
+	//std::streamsize FileX::GetFileSize(std::fstream& fsFile)
+	//{
+	//	std::streamsize szFile = 0;
+	//	std::streampos oldPos = fsFile.tellg();
+
+	//	fsFile.seekg(0, std::ios::end);
+	//	szFile = fsFile.tellg();
+	//	fsFile.seekg(oldPos, std::ios::beg);
+
+	//	return szFile;
+	//}
 }
 

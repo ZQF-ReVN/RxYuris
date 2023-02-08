@@ -18,7 +18,7 @@ void YSTLStructure()
 	std::cin >> flag;
 	std::cout << std::endl;
 
-	YSTList yst(fileName);
+	YSTL yst(fileName);
 	if (flag == 'm')
 	{
 		yst.MakeStructure();

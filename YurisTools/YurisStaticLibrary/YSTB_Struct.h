@@ -17,14 +17,14 @@ namespace YurisStaticLibrary
         */
         struct YSTBHeader_V5
         {
-            char aSignature[4]; //YSTB
-            int iVersion; //300 - 
-            int iInstructionCount;
-            int iInstructionsSize; //iInstructionCount * 4
-            int iAttributeDescriptorsSize;
-            int iAttributeValuesSize;
-            int iLineNumbersSize;
-            int iPadding;
+            unsigned char aSignature[4]; //YSTB
+            unsigned int uiVersion; //300 - 
+            unsigned int uiInstructionCount;
+            unsigned int uiInstructionsSize; //iInstructionCount * 4
+            unsigned int uiAttributeDescriptorsSize;
+            unsigned int uiAttributeValuesSize;
+            unsigned int uiLineNumbersSize;
+            unsigned int uiPadding;
         };
 
         struct Instruction_V5
@@ -48,29 +48,97 @@ namespace YurisStaticLibrary
         * YSTBFile_V2
         * {
         *   YSTBHeader_V2
-        *   CodeSegment
-        *   ResSegment
+        *    CodeSegment
+        *       Instruction_V2[?]
+        *          ResEntry_V2[?]
+        *    ResSegment
+        *       ResInfo_V2[?]
         * }
         */
         struct YSTBHeader_V2
         {
-            char aSignature[4]; //YSTB
-            int iVersion; //224 - 300
-            int iCodeSegSize;
-            int iResSegSize;
-            int iResOffset;
-            int iReserved0;
-            int iReserved1;
-            int iReserved2;
+            unsigned char aSignature[4]; //YSTB
+            unsigned int uiVersion; //224 - 300
+            unsigned int uiCodeSegSize;
+            unsigned int uiResSegSize;
+            unsigned int uiResOffset;
+            unsigned int uiReserved0;
+            unsigned int uiReserved1;
+            unsigned int uiReserved2;
         };
-        //op -> 0x19 0x18 0x1A 0x1E 0x23 0x50 0x54 
-        /*	PushString
-        *	54			op
-            01			len = 0x01*0C + 6 / (if op == 0x38，len = 0xA)
-            BA000000	un0
-            00000000	un1
-            26000000	lenStr
-            05140000	offStr
+
+        #pragma pack(1)
+        struct Instruction_V2
+        {
+            unsigned char ucOP;
+            unsigned char ucArgs;
+            unsigned int ucLine;
+        };
+        #pragma pack()
+
+        struct ResEntry_V2
+        {
+            unsigned short usUn0;
+            unsigned short usUn1;
+            unsigned int uiResSize;
+            unsigned int uiResRVA;
+        };
+
+        struct ResInfo_V2
+        {
+            unsigned char ucType;
+            unsigned short usSize;
+            //pData[usSize];
+        };
+
+        /*
+          Res
+          unsigned char ucType
+          unsigned short usResLen
+          unsigned char* pData[usResLen]
+          
+          ucType
+          0x4D -> push string
+          0x42 -> push int8
+          0x52 -> changesign
+          0x57 -> push int16
         */
+
+        //0x8  08 00 ???????? 位于代码段结束位置
+
+        /*
+        * 0x19 读取一些es.开头的字符串 es.VoiceSetTask es.BGM
+          1904     -> OP
+          1C000000 -> OrgCodeTextLineNumber?
+          0000
+          0300
+          0B000000 ->len: es.BGM
+          60010000 ->rva:
+          1100
+          0300
+          0A000000 ->len: BGM07
+          6B010000 ->rva:
+          0200
+          0100
+          04000000 ->len: int8 0x00
+          75010000 ->rva:
+          0300
+          0100
+          07000000 ->len: int8 0x01
+          79010000 ->rva:
+        */
+
+        //0x18,0x1A,0x1E,0x23,0x38,0x4D,0x4F,0x50
+        
+        //0x54 读取对话字符串
+        /*
+          54        op
+          01        len = 0x01*0C + 6 / (if op == 0x38，len = 0xA)
+          BA000000  un0
+          00000000  un1
+          26000000  lenStr
+          05140000  offStr
+        */
+
     }
 }

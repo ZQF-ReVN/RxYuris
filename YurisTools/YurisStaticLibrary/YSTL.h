@@ -6,7 +6,7 @@
 
 namespace YurisStaticLibrary
 {
-    class YSTList
+    class YSTL
     {
     private:
         std::wstring m_wsYSTL;
@@ -18,8 +18,8 @@ namespace YurisStaticLibrary
         bool InitIndex();
 
     public:
-        YSTList(std::wstring wsYSTL);
-        ~YSTList();
+        YSTL(std::wstring wsYSTL);
+        ~YSTL();
 
         bool PrintIndexToFile();
         bool MakeStructure();
