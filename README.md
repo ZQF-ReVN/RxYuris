@@ -2,7 +2,7 @@
 A Tool For Processing YU-RIS Engine  
 # To Do List
 [o] YSTB Guess Xor Key (v.2.xx - v.5.xx)   
-[o] YSTB Dec (v.2.xx - v.5。xx)  
+[o] YSTB Dec (v.2.xx - v.5.xx)  
 [o] YSTB Text Dump (v.2.xx - v2.99)  
 [o] YSTB Text Dump Audio Files Name (v.2.xx - v2.99)  
 [o] YSTB Text Inset (v.2.xx - v2.99)  
