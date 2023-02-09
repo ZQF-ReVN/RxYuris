@@ -190,28 +190,28 @@ namespace YurisStaticLibrary
 			//Parameter analysis
 			case 0x19:
 			{
-				if (isAudioFileName)
+				if (!isAudioFileName) break;
+
+				size_t szBlock = pIns->ucArgs * 0xC + 6;
+				ResEntry_V2* pEntry = (ResEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
+
+				if (*(pResSeg + pEntry->uiResRVA) == 0x4D && *(pResSeg + pEntry->uiResRVA + 3) != 0x27)
 				{
-					size_t szBlock = pIns->ucArgs * 0xC + 6;
-					ResEntry_V2* pEntry = (ResEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
+					mText.resize(pEntry->uiResSize - 5);
+					memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiResRVA + 4, pEntry->uiResSize - 5);
 
-					if (*(pResSeg + pEntry->uiResRVA) == 0x4D && *(pResSeg + pEntry->uiResRVA + 3) != 0x27)
+					if (mText.find("es.VoiceSetTask") != 0)
 					{
-						mText.resize(pEntry->uiResSize - 5);
-						memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiResRVA + 4, pEntry->uiResSize - 5);
-
-						if (mText.find("es.VoiceSetTask") != 0)
-						{
-							break;
-						}
-
-						pEntry += 1;
-
-						mText.resize(pEntry->uiResSize - 5);
-						memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiResRVA + 4, pEntry->uiResSize - 5);
-						CVTString::StrToWStr(mText, wText, uiCodePage);
+						break;
 					}
+
+					pEntry += 1;
+
+					mText.resize(pEntry->uiResSize - 5);
+					memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiResRVA + 4, pEntry->uiResSize - 5);
+					CVTString::StrToWStr(mText, wText, uiCodePage);
 				}
+
 				//ParameterAnalysis(woText, mText, wText, pIns, pCodeSeg, pResSeg, iteCodeSize, uiCodePage);
 			}
 			break;
