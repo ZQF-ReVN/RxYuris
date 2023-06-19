@@ -1,6 +1,6 @@
 # YurisTools
 A Tool For Processing YU-RIS Engine  
-# To Do List
+## To Do List
 [o] YSTB Guess Xor Key (v.2.xx - v.5.xx)   
 [o] YSTB Dec (v.2.xx - v.5.xx)  
 [o] YSTB Text Dump (v.2.xx - v2.99)  
@@ -10,24 +10,28 @@ A Tool For Processing YU-RIS Engine
 [x] YSTL Restore Files Name (v.2.xx - v2.99)  
 [o] YSCM Parse (test v.5.xx)  
 
-# YSCM Parse
+## YSCM Parse
 Get Commands Opcode / Name and Args ID / Name
 
-# YSTBGuessKey
+## YSTBGuessKey
 Guess the key of YSTB  
 Supported version v.2.xx - v.5.xx  
 
-# YSTBXorFile
+## YSTBXorFile
 Decrypt YSTB file  
 Supported version v.2.xx - v.5.xx  
 
-# YSTBV2TextEditor
+## YSTBV2TextEditor
 Import and export the dialogue text of the game in YSTB  
 Supported version v.2.xx - v.2.99 
 
-# YSTLMakeDirStructure
+## YSTLMakeDirStructure
 Recover the file name and directory structure of ybn files from YSTL files  
 Supported version v.3.xx - v.5.xx  
 
-# YPFDecodeFile_WZ
+## YPFDecodeFile_WZ
 Decrypt YPF file encrypted by the paid Chineseization group  
+
+# References
+[VNTranslationTools](https://github.com/arcusmaximus/VNTranslationTools)  
+[chinesize](https://github.com/regomne/chinesize)
