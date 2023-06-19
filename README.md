@@ -8,6 +8,10 @@ A Tool For Processing YU-RIS Engine
 [o] YSTB Text Inset (v.2.xx - v2.99)  
 [o] YSTL Restore Files Name (test v.5.xx)  
 [x] YSTL Restore Files Name (v.2.xx - v2.99)  
+[o] YSCM Pasre (test v.5.xx)  
+
+# YSCM Pasre
+Get Commands Opcode / Name and Args ID / Name
 
 # YSTBGuessKey
 Guess the key of YSTB  
