@@ -6,12 +6,17 @@ A Tool For Processing YU-RIS Engine
 [o] YSTB Text Dump (v.2.xx - v2.99)  
 [o] YSTB Text Dump Audio Files Name (v.2.xx - v2.99)  
 [o] YSTB Text Inset (v.2.xx - v2.99)  
-[o] YSTL Restore Files Name (test v.5.xx)  
+[o] YSTL Restore Files Name (tested v.5.xx)  
 [x] YSTL Restore Files Name (v.2.xx - v2.99)  
-[o] YSCM Parse (test v.5.xx)  
+[o] YSCM Parse (tested v.5.xx)  
+[o] YSCFG To Json (tested v.5.xx)   
+[x] YSCFG Write Back
 
 ## YSCM Parse
 Get Commands Opcode / Name and Args ID / Name
+
+## YSCFG Editor
+Configure the yscfg. ybn file  
 
 ## YSTBGuessKey
 Guess the key of YSTB  
