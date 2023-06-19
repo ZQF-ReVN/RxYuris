@@ -10,7 +10,7 @@ A Tool For Processing YU-RIS Engine
 [x] YSTL Restore Files Name (v.2.xx - v2.99)  
 [o] YSCM Parse (test v.5.xx)  
 
-# YSCM Pasre
+# YSCM Parse
 Get Commands Opcode / Name and Args ID / Name
 
 # YSTBGuessKey
