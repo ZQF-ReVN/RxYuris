@@ -32,7 +32,7 @@ namespace Rut
 		}
 
 		template <typename T_FileName>
-		std::ofstream  CreateFileBinaryStream(const T_FileName& tFile)
+		std::ofstream CreateFileBinaryStream(const T_FileName& tFile)
 		{
 			std::ofstream ofs(tFile, std::ios::binary);
 			if (!ofs) { throw std::runtime_error("CreateFileBinaryStream: Create File Error!"); }
@@ -40,7 +40,7 @@ namespace Rut
 		}
 
 		template <typename T_FileName>
-		std::ofstream  CreateFileANSIStream(const T_FileName& tFile)
+		std::ofstream CreateFileANSIStream(const T_FileName& tFile)
 		{
 			std::ofstream ofs(tFile);
 			if (!ofs) { throw std::runtime_error("CreateFileANSIStream: Create File Error!"); }
@@ -57,7 +57,7 @@ namespace Rut
 		}
 
 		template <typename T_FileName>
-		std::ifstream  OpenFileBinaryStream(const T_FileName& tFile)
+		std::ifstream OpenFileBinaryStream(const T_FileName& tFile)
 		{
 			std::ifstream ifs(tFile, std::ios::binary);
 			if (!ifs) { throw std::runtime_error("OpenFileBinaryStream: Open File Error!"); }
@@ -65,7 +65,7 @@ namespace Rut
 		}
 
 		template <typename T_FileName>
-		std::ifstream  OpenFileANSIStream(const T_FileName& tFile)
+		std::ifstream OpenFileANSIStream(const T_FileName& tFile)
 		{
 			std::ifstream ifs(tFile);
 			if (!ifs) { throw std::runtime_error("OpenFileANSIStream: Open File Error!"); }

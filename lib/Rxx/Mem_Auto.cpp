@@ -82,9 +82,7 @@ namespace Rut
 
 		void AutoMem::SaveDataToFile(const std::wstring& wsFile)
 		{
-			std::ofstream ofs = CreateFileBinaryStream(wsFile);
-			ofs.write((char*)m_pData, m_szData);
-			ofs.flush();
+			SaveFileViaPath(wsFile.c_str(), m_pData, m_szData);
 		}
 	}
 }

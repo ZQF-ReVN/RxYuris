@@ -2,409 +2,495 @@
 #include "../Rxx/Str.h"
 #include "../Rxx/File.h"
 
-#include <Windows.h>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 
+
 namespace YurisLibrary
 {
-	using namespace YSTB_Struct;
-	using namespace Rut::StrX;
-	using namespace Rut::FileX;
-
-	bool YSTB::TextInset_V2(std::wstring wsFileName, unsigned int uiCodePage)
+	namespace YSTB
 	{
-		//Open Text File
-		std::wifstream iTextStream(wsFileName + L".txt");
-		iTextStream.imbue(GetCVT_UTF8());
-		if (!iTextStream.is_open())
+		using namespace Rut::StrX;
+		using namespace Rut::MemX;
+		using namespace Rut::FileX;
+
+
+		YSTB_Coder::YSTB_Coder(uint32_t uiXorKey)
 		{
-			std::wcout << "Open Text File Failed!" << L'\n';
-			return false;
+			this->m_uiXorKey = uiXorKey;
 		}
 
-		//Backup File
-		CopyFileW(wsFileName.c_str(), (wsFileName + L".new").c_str(), FALSE);
-
-		//Open YSTB File
-		std::fstream ioYSTBStream(wsFileName + L".new", std::ios::in | std::ios::out | std::ios::binary);
-		if (!ioYSTBStream.is_open())
+		bool YSTB_Coder::Xor(uint8_t* pYSTB)
 		{
-			std::wcout << "Open YSTB File Failed!" << L'\n';
-			return false;
-		}
+			uint8_t* key = (uint8_t*)&m_uiXorKey;
+			uint32_t magic = *(uint32_t*)(pYSTB + 0);
+			uint32_t version = *(uint32_t*)(pYSTB + 4);
 
-		//Init Header
-		YSTB_Header_V2 header = { 0 };
-		ioYSTBStream.read(reinterpret_cast<char*>(&header), sizeof(header));
-		if (*(unsigned int*)header.ucSignature != 0x42545359)
-		{
-			std::wcout << "Mismatched File Header!" << L'\n';
-			return false;
-		}
+			if (magic != 0x42545359) { return false; }
 
-		//Init Buffer
-		char* pCodeSeg = new char[header.uiCodeSegSize];
-		ioYSTBStream.read(pCodeSeg, header.uiCodeSegSize);
-
-		//Append Text
-		std::string mText;
-		unsigned int szText = 0;
-		unsigned int offset = 0;
-		for (std::wstring wLine; std::getline(iTextStream, wLine);)
-		{
-			if (wLine.find(L"CodePos:") != 0) continue;
-
-			swscanf_s(wLine.c_str(), L"CodePos:%08x", &offset);
-
-			for (; std::getline(iTextStream, wLine);)
+			if (version > 200 && version < 300)
 			{
-				if (wLine.find(L"Tra:") != 0) continue;
+				uint8_t* seg_ptr = pYSTB + sizeof(YSTB_Header_V2);
+				YSTB_Header_V2* hdr_ptr = (YSTB_Header_V2*)(pYSTB);
+				for (uint32_t ite_code_data = 0; ite_code_data < hdr_ptr->uiCodeSegSize; ite_code_data++)
+				{
+					seg_ptr[ite_code_data] ^= key[ite_code_data & 3];
+				}
 
-				//Processing Text
-				wLine = wLine.substr(4);
-				WStrToStr(wLine, mText, uiCodePage);
-				szText = mText.size();
+				seg_ptr += hdr_ptr->uiCodeSegSize;
 
-				//Modify Code (len,off) and File Header
-				*(unsigned int*)(pCodeSeg + offset + 0xA) = szText;
-				*(unsigned int*)(pCodeSeg + offset + 0xE) = header.uiArgsSegSize;
-				header.uiArgsSegSize += szText;
-
-				//Append Text
-				ioYSTBStream.seekp(0, std::ios::end);
-				ioYSTBStream.write(mText.c_str(), szText);
-
-				break;
-			}
-		}
-
-		//Write Back Header
-		ioYSTBStream.seekp(0);
-		ioYSTBStream.write(reinterpret_cast<char*>(&header), sizeof(header));
-
-		//Write Back Code Segment
-		ioYSTBStream.seekp(sizeof(YSTB_Header_V2));
-		ioYSTBStream.write(pCodeSeg, header.uiCodeSegSize);
-
-		//Clean
-		ioYSTBStream.seekp(0);
-		ioYSTBStream.flush();
-		delete[] pCodeSeg;
-
-		return true;
-	}
-
-	void ParameterAnalysis(std::wofstream& woText, std::string& mText, std::wstring& wText, YSTB_InstEntry_V2* pIns, char* pCodeSeg, char* pResSeg, size_t iteCodeSize, unsigned int uiCodePage)
-	{
-		size_t szBlock = pIns->ucArgs * 0xC + 6;
-		YSTB_ArgEntry_V2* pEntry = (YSTB_ArgEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
-
-		woText
-			<< L"Off:0x"
-			<< std::setw(0x8) << std::setfill(L'0') << std::hex
-			<< sizeof(YSTB_Header_V2) + iteCodeSize << L" ";
-
-		for (size_t iteArg = 0; iteArg < (szBlock - 6) / 12; iteArg++)
-		{
-			if (*(pResSeg + pEntry->uiArgRVA) == 0x4D && *(pResSeg + pEntry->uiArgRVA + 3) != 0x27)
-			{
-				mText.resize(pEntry->uiArgSize - 5);
-				memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiArgRVA + 4, pEntry->uiArgSize - 5);
-				StrToWStr(mText, wText, uiCodePage);
-				woText << wText << L", ";
+				for (size_t ite_arg_data = 0; ite_arg_data < hdr_ptr->uiArgsSegSize; ite_arg_data++)
+				{
+					seg_ptr[ite_arg_data] ^= key[ite_arg_data & 3];
+				}
 			}
 			else
 			{
-				long long buffer = 0;
-				if ((pEntry->uiArgSize - 3) > 4)
+				uint8_t* seg_ptr = pYSTB + sizeof(YSTB_Header_V5);
+				YSTB_Header_V5* hdr_ptr = (YSTB_Header_V5*)(pYSTB);
+
+				for (uint32_t ite_inst_data = 0; ite_inst_data < hdr_ptr->uiInstIndexSize; ite_inst_data++)
 				{
-					memcpy(&buffer, pResSeg + pEntry->uiArgRVA + 3, pEntry->uiArgSize - 3);
-					woText << buffer << L",";
+					seg_ptr[ite_inst_data] ^= key[ite_inst_data & 3];
+				}
+
+				seg_ptr += hdr_ptr->uiInstIndexSize;
+
+				for (uint32_t ite_args_index_data = 0; ite_args_index_data < hdr_ptr->uiArgsIndexSize; ite_args_index_data++)
+				{
+					seg_ptr[ite_args_index_data] ^= key[ite_args_index_data & 3];
+				}
+
+				seg_ptr += hdr_ptr->uiArgsIndexSize;
+
+				for (uint32_t ite_args_data_data = 0; ite_args_data_data < hdr_ptr->uiArgsDataSize; ite_args_data_data++)
+				{
+					seg_ptr[ite_args_data_data] ^= key[ite_args_data_data & 3];
+				}
+
+				seg_ptr += hdr_ptr->uiArgsDataSize;
+
+				for (uint32_t ite_line_number_data = 0; ite_line_number_data < hdr_ptr->uiLineNumbersSize; ite_line_number_data++)
+				{
+					seg_ptr[ite_line_number_data] ^= key[ite_line_number_data & 3];
+				}
+			}
+
+			return true;
+		}
+
+		bool YSTB_Coder::Xor(const std::wstring& wsEnc, const std::wstring& wsDec)
+		{
+			Rut::MemX::AutoMem ystb_buf(wsEnc);
+			if (Xor((uint8_t*)ystb_buf))
+			{
+				ystb_buf.SaveDataToFile(wsDec);
+				return true;
+			}
+			return false;
+		}
+
+		uint32_t YSTB_Coder::GetXorKey(const std::wstring& wsYSTB)
+		{
+			if (m_uiXorKey != 0) { return m_uiXorKey; }
+
+			uint32_t key = 0;
+			uint32_t version = 0;
+			std::ifstream ifs_ystb = OpenFileBinaryStream(wsYSTB);
+
+			//Read Version
+			ifs_ystb.seekg(4);
+			ifs_ystb.read((char*)&version, 4);
+			ifs_ystb.seekg(0);
+
+			//Check Version
+			if (version > 200 && version < 300)
+			{
+				YSTB_Header_V2 header = { 0 };
+				ifs_ystb.read((char*)&header, sizeof(YSTB_Header_V2));
+				if ((header.uiCodeSegSize + header.uiArgsSegSize) < 0x10)
+				{
+					m_uiXorKey = 0;
 				}
 				else
 				{
-					memcpy(&buffer, pResSeg + pEntry->uiArgRVA + 3, pEntry->uiArgSize - 3);
-					woText << buffer << L", ";
+					ifs_ystb.seekg(0x2C);
+					ifs_ystb.read((char*)&key, 4);
 				}
+			}
+			else
+			{
+				//Init Header
+				YSTB_Header_V5 header = { 0 };
+				ifs_ystb.read((char*)&header, sizeof(YSTB_Header_V5));
 
+				if (header.uiArgsDataSize == 0)
+				{
+					m_uiXorKey = 0;
+				}
+				else
+				{
+					//Read The First AttributeDescriptor iOffset == 0
+					ifs_ystb.seekg(static_cast<std::streampos>(header.uiInstIndexSize + sizeof(YSTB_Header_V5) + 0x8));
+					ifs_ystb.read((char*)&key, 4);
+				}
 			}
 
-			pEntry += 1; //Move To Next Entry
+			m_uiXorKey = key;
+
+			return m_uiXorKey;
 		}
 
-		woText << std::endl;
-	}
 
-	bool YSTB::TextDump_V2(std::wstring wsFileName, unsigned int uiCodePage, bool isAudioFileName)
-	{
-		//Create Text File
-		std::wofstream woText(wsFileName + L".txt");
-		woText.imbue(GetCVT_UTF8());
-		if (!woText.is_open())
+		YSTB_Inst_V5::YSTB_Inst_V5()
 		{
-			std::wcout << "Create Text File Failed!" << L'\n';
-			return false;
+			this->m_ucOpcode = 0;
+			this->m_ucArgCount = 0;
+			this->m_ucUnknow0 = 0;
+			this->m_ucUnknow1 = 0;
 		}
 
-		//Open YSTB File
-		std::ifstream ioYSTBStream(wsFileName, std::ios::binary);
-		if (!ioYSTBStream.is_open())
+		YSTB_Inst_V5::YSTB_Inst_V5(uint8_t* pInst)
 		{
-			std::wcout << "Create YSTB File Failed!" << L'\n';
-			return false;
+			Init(pInst);
 		}
 
-		//Init Header
-		YSTB_Header_V2 header = { 0 };
-		ioYSTBStream.read(reinterpret_cast<char*>(&header), sizeof(header));
-		if (*(unsigned int*)header.ucSignature != 0x42545359)
+		void YSTB_Inst_V5::Init(uint8_t* pInst)
 		{
-			std::wcout << "Mismatched File Header!" << L'\n';
-			return false;
+			this->m_ucOpcode = pInst[0];
+			this->m_ucArgCount = pInst[1];
+			this->m_ucUnknow0 = pInst[2];
+			this->m_ucUnknow1 = pInst[3];
 		}
 
-		//Init Seg Buffer
-		char* pCodeSeg = new char[header.uiCodeSegSize];
-		ioYSTBStream.read(pCodeSeg, header.uiCodeSegSize);
-		char* pResSeg = new char[header.uiArgsSegSize];
-		ioYSTBStream.read(pResSeg, header.uiArgsSegSize);
-
-		//Analyzing VM
-		std::string mText;
-		std::wstring wText;
-		unsigned int count = 0;
-		for (size_t iteCodeSize = 0; iteCodeSize < header.uiCodeSegSize;)
+		void YSTB_Inst_V5::AddArg(YSTB_Arg_V5& yArg)
 		{
-			YSTB_InstEntry_V2* pIns = (YSTB_InstEntry_V2*)(pCodeSeg + iteCodeSize);
+			m_vecArg.emplace_back(yArg);
+		}
 
-			switch (pIns->ucOP)
+		YSTB_Arg_V5::YSTB_Arg_V5()
+		{
+			this->m_usArgID = 0;
+			this->m_usArgType = 0;
+			this->m_uiArgSize = 0;
+		}
+
+		YSTB_Arg_V5::YSTB_Arg_V5(uint8_t* pArg, uint8_t* pArgData)
+		{
+			Init(pArg, pArgData);
+		}
+
+		void YSTB_Arg_V5::Init(uint8_t* pArg, uint8_t* pArgData)
+		{
+			this->m_usArgID = *(uint16_t*)pArg;
+			this->m_usArgType = *(uint16_t*)(pArg + 2);
+			this->m_uiArgSize = *(uint32_t*)(pArg + 4);
+
+			uint8_t* arg_data_ptr = m_amArgData[m_uiArgSize];
+			memcpy(arg_data_ptr, pArgData, m_uiArgSize);
+		}
+
+
+		YSTB_V5::YSTB_V5()
+		{
+			this->m_Header = { 0 };
+		}
+
+		YSTB_V5::YSTB_V5(const std::wstring& wsYSTB)
+		{
+			Init(wsYSTB);
+		}
+
+		void YSTB_V5::Init(const std::wstring& wsYSTB)
+		{
+			AutoMem buf(wsYSTB);
+			std::vector<YSTB_Arg_V5> arg_vec;
+
+			uint8_t* hdr_ptr = buf;
+			memcpy(&m_Header, hdr_ptr, sizeof(m_Header));
+
+			uint8_t* inst_ptr = hdr_ptr + sizeof(m_Header);
+			for (size_t ite_inst = 0; ite_inst < m_Header.uiInstEntryCount; ite_inst++)
 			{
-			case 0x38:
-			{
-				iteCodeSize += 0xA;
-				continue;
+				YSTB_Inst_V5 inst(inst_ptr);
+				inst_ptr += 4;
+				m_vecInst.emplace_back(inst);
 			}
-			break;
 
-			//Parameter analysis
-			case 0x19:
+			uint8_t* arg_indx_ptr = inst_ptr;
+			uint8_t* arg_data_ptr = arg_indx_ptr + m_Header.uiArgsIndexSize;
+			for (size_t ite_arg = 0; ite_arg < m_Header.uiArgsIndexSize / 0xC; ite_arg++)
 			{
-				if (!isAudioFileName) break;
+				uint32_t offset = *(uint32_t*)(arg_indx_ptr + 8);
+				YSTB_Arg_V5 arg(arg_indx_ptr, arg_data_ptr + offset);
+				arg_indx_ptr += 0xC;
+				arg_vec.emplace_back(arg);
+			}
 
-				size_t szBlock = pIns->ucArgs * 0xC + 6;
-				YSTB_ArgEntry_V2* pEntry = (YSTB_ArgEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
+			uint32_t count_read_arg = -1;
+			for (auto& inst : m_vecInst)
+			{
+				for (size_t ite = 0; ite < inst.GetArgCount(); ite++)
+				{
+					count_read_arg += 1;
+					inst.AddArg(arg_vec[count_read_arg]);
+				}
+			}
+		}
 
+
+		YSTB_V2::YSTB_V2()
+		{
+
+		}
+
+		bool YSTB_V2::TextInset_V2(std::wstring wsFileName, uint32_t uiCodePage)
+		{
+			//Open Text File
+			std::wifstream iTextStream = OpenFileUTF8Stream(wsFileName + L".txt");
+
+			//Backup File
+			CopyFileW(wsFileName.c_str(), (wsFileName + L".new").c_str(), FALSE);
+
+			//Open YSTB File
+			std::fstream ioYSTBStream(wsFileName + L".new", std::ios::in | std::ios::out | std::ios::binary);
+			if (!ioYSTBStream.is_open())
+			{
+				throw std::runtime_error("Open YSTB File Failed!");
+			}
+
+			//Init Header
+			YSTB_Header_V2 header = { 0 };
+			ioYSTBStream.read(reinterpret_cast<char*>(&header), sizeof(header));
+			if (*(uint32_t*)header.ucSignature != 0x42545359)
+			{
+				throw std::runtime_error("Mismatched File Header!");
+			}
+
+			//Init Buffer
+			char* pCodeSeg = new char[header.uiCodeSegSize];
+			ioYSTBStream.read(pCodeSeg, header.uiCodeSegSize);
+
+			//Append Text
+			std::string mText;
+			unsigned int szText = 0;
+			unsigned int offset = 0;
+			for (std::wstring wLine; std::getline(iTextStream, wLine);)
+			{
+				if (wLine.find(L"CodePos:") != 0) continue;
+
+				swscanf_s(wLine.c_str(), L"CodePos:%08x", &offset);
+
+				for (; std::getline(iTextStream, wLine);)
+				{
+					if (wLine.find(L"Tra:") != 0) continue;
+
+					//Processing Text
+					wLine = wLine.substr(4);
+					WStrToStr(wLine, mText, uiCodePage);
+					szText = mText.size();
+
+					//Modify Code (len,off) and File Header
+					*(unsigned int*)(pCodeSeg + offset + 0xA) = szText;
+					*(unsigned int*)(pCodeSeg + offset + 0xE) = header.uiArgsSegSize;
+					header.uiArgsSegSize += szText;
+
+					//Append Text
+					ioYSTBStream.seekp(0, std::ios::end);
+					ioYSTBStream.write(mText.c_str(), szText);
+
+					break;
+				}
+			}
+
+			//Write Back Header
+			ioYSTBStream.seekp(0);
+			ioYSTBStream.write(reinterpret_cast<char*>(&header), sizeof(header));
+
+			//Write Back Code Segment
+			ioYSTBStream.seekp(sizeof(YSTB_Header_V2));
+			ioYSTBStream.write(pCodeSeg, header.uiCodeSegSize);
+
+			//Clean
+			ioYSTBStream.seekp(0);
+			ioYSTBStream.flush();
+			delete[] pCodeSeg;
+
+			return true;
+		}
+
+		void YSTB_V2::ParameterAnalysis(std::wofstream& woText, std::string& mText, std::wstring& wText, YSTB_InstEntry_V2* pIns, char* pCodeSeg, char* pResSeg, size_t iteCodeSize, unsigned int uiCodePage)
+		{
+			size_t szBlock = pIns->ucArgs * 0xC + 6;
+			YSTB_ArgEntry_V2* pEntry = (YSTB_ArgEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
+
+			woText
+				<< L"Off:0x"
+				<< std::setw(0x8) << std::setfill(L'0') << std::hex
+				<< sizeof(YSTB_Header_V2) + iteCodeSize << L" ";
+
+			for (size_t iteArg = 0; iteArg < (szBlock - 6) / 12; iteArg++)
+			{
 				if (*(pResSeg + pEntry->uiArgRVA) == 0x4D && *(pResSeg + pEntry->uiArgRVA + 3) != 0x27)
 				{
 					mText.resize(pEntry->uiArgSize - 5);
 					memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiArgRVA + 4, pEntry->uiArgSize - 5);
-
-					if (mText.find("es.VoiceSetTask") != 0)
+					StrToWStr(mText, wText, uiCodePage);
+					woText << wText << L", ";
+				}
+				else
+				{
+					long long buffer = 0;
+					if ((pEntry->uiArgSize - 3) > 4)
 					{
-						break;
+						memcpy(&buffer, pResSeg + pEntry->uiArgRVA + 3, pEntry->uiArgSize - 3);
+						woText << buffer << L",";
+					}
+					else
+					{
+						memcpy(&buffer, pResSeg + pEntry->uiArgRVA + 3, pEntry->uiArgSize - 3);
+						woText << buffer << L", ";
 					}
 
-					pEntry += 1;
-
-					mText.resize(pEntry->uiArgSize - 5);
-					memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiArgRVA + 4, pEntry->uiArgSize - 5);
-					StrToWStr(mText, wText, uiCodePage);
 				}
 
-				//ParameterAnalysis(woText, mText, wText, pIns, pCodeSeg, pResSeg, iteCodeSize, uiCodePage);
-			}
-			break;
-
-			//Game Text
-			case 0x54:
-			{
-				if (isAudioFileName)
-				{
-					woText << L"Audio:" << wText << L'\n';
-				}
-
-				count++;
-
-				YSTB_ArgEntry_V2* pEntry = (YSTB_ArgEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
-				mText.resize(pEntry->uiArgSize);
-				memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiArgRVA, pEntry->uiArgSize);
-#ifdef _DEBUG
-				woText
-					<< L"StrOffset:"
-					<< std::setw(0x8) << std::setfill(L'0') << std::hex
-					<< (int*)(header.uiCodeSegSize + pEntry->uiArgRVA + sizeof(header)) << L'\n';
-
-				woText
-					<< L"CodeOffset:"
-					<< std::setw(0x8) << std::setfill(L'0') << std::hex
-					<< iteCodeSize + sizeof(header) << L'\n';
-#endif
-				woText 
-					<< L"CodePos:" 
-					<< std::setw(0x8) << std::setfill(L'0') << std::hex
-					<< iteCodeSize << L'\n';
-
-				woText 
-					<< L"Count  :" << std::setw(0x8) << std::setfill(L'0') << std::dec 
-					<< count << L'\n';
-
-				StrToWStr(mText, wText, uiCodePage);
-
-				woText
-					<< L"Raw:" << wText << L"\n"
-					<< L"Tra:" << wText << L"\n\n";
-
-				wText.clear();
-			}
-			break;
-
+				pEntry += 1; //Move To Next Entry
 			}
 
-			//Size Of Code Block
-			iteCodeSize += pIns->ucArgs * 0xC + 6;
+			woText << std::endl;
 		}
 
-		//Clean
-		woText.flush();
-		woText.close();
-		delete[] pCodeSeg;
-		delete[] pResSeg;
-
-		if (count == 0)
+		bool YSTB_V2::TextDump_V2(std::wstring wsFileName, uint32_t uiCodePage, bool isAudioFileName)
 		{
-			DeleteFileW((wsFileName + L".txt").c_str());
-			std::wcout << L"Text not found" << std::endl;
-			return false;
-		}
+			//Create Text File
+			std::wofstream woText = CreateFileUTF8Stream(wsFileName + L".txt");
 
-		return true;
-	}
+			//Open YSTB File
+			std::ifstream ioYSTBStream = OpenFileBinaryStream(wsFileName);
 
-	bool YSTB::XorScript(std::string strYSTB, unsigned char* aXorKey)
-	{
-		char* pSeg = nullptr;
-		char* pYSTB = nullptr;
-		unsigned int magic = 0;
-		unsigned int version = 0;
-		std::streamsize size = 0;
-
-
-		std::ifstream iYSTB(strYSTB, std::ios::binary);
-		if (!iYSTB.is_open()) return false;
-
-		//Check is YSTB file
-		iYSTB.read(reinterpret_cast<char*>(&magic), 4);
-		iYSTB.read(reinterpret_cast<char*>(&version), 4);
-		iYSTB.seekg(0, std::ios::beg);
-		if (magic != 0x42545359) { iYSTB.close(); return false; }
-
-		//Read Buffer
-		size = GetFileSize(iYSTB);
-		pYSTB = new char[static_cast<size_t>(size)];
-		iYSTB.read(pYSTB, size);
-
-		//Skip File Header
-		pSeg = pYSTB + 0x20;
-
-		//Dec
-		if (version > 200 && version < 300)
-		{
-			YSTB_Header_V2* pHeader = reinterpret_cast<YSTB_Header_V2*>(pYSTB);
-			for (size_t iteData = 0; iteData < static_cast<size_t>(pHeader->uiCodeSegSize); iteData++)
-			{
-				pSeg[iteData] ^= aXorKey[iteData & 3];
-			}
-
-			pSeg += pHeader->uiCodeSegSize;
-
-			for (size_t iteData = 0; iteData < static_cast<size_t>(pHeader->uiArgsSegSize); iteData++)
-			{
-				pSeg[iteData] ^= aXorKey[iteData & 3];
-			}
-		}
-		else
-		{
-			size_t szSegment = 0;
-			for (size_t iteSegments = 0; iteSegments < 4; iteSegments++)
-			{
-				szSegment = *(reinterpret_cast<unsigned int*>(pYSTB) + 3 + iteSegments);
-				for (size_t iteData = 0; iteData < szSegment; iteData++)
-				{
-					pSeg[iteData] ^= aXorKey[iteData & 3];
-				}
-				pSeg += szSegment;
-			}
-		}
-		pSeg = nullptr;
-
-		//Save Buffer To New File
-		std::ofstream oYSTB(strYSTB + ".dec", std::ios::binary);
-		if (oYSTB.is_open())
-		{
-			oYSTB.write(pYSTB, size);
-			oYSTB.flush();
-			oYSTB.close();
-		}
-
-		delete[] pYSTB;
-		pYSTB = nullptr;
-
-		iYSTB.close();
-		return true;
-	}
-
-	void YSTB::GuessXorKey(std::string strYSTB, unsigned char* aXorKey)
-	{
-		unsigned int key = 0;
-		unsigned int version = 0;
-
-		std::ifstream iYSTB(strYSTB, std::ios::binary);
-		if (!iYSTB.is_open()) return;
-
-		//Read Version
-		iYSTB.seekg(4);
-		iYSTB.read(reinterpret_cast<char*>(&version), 4);
-		iYSTB.seekg(0);
-
-		//Check Version
-		if (version > 200 && version < 300)
-		{
-			YSTB_Header_V2 header = { 0 };
-			iYSTB.read(reinterpret_cast<char*>(&header), sizeof(YSTB_Header_V2));
-			if ((header.uiCodeSegSize + header.uiArgsSegSize) < 0x10)
-			{
-				*reinterpret_cast<unsigned int*>(aXorKey) = 0;
-			}
-			else
-			{
-				iYSTB.seekg(0x2C);
-				iYSTB.read(reinterpret_cast<char*>(&key), 4);
-			}
-		}
-		else
-		{
 			//Init Header
-			YSTB_Header_V5 header = { 0 };
-			iYSTB.read(reinterpret_cast<char*>(&header), sizeof(YSTB_Header_V5));
+			YSTB_Header_V2 header = { 0 };
+			ioYSTBStream.read(reinterpret_cast<char*>(&header), sizeof(header));
+			if (*(uint32_t*)header.ucSignature != 0x42545359)
+			{
+				throw std::runtime_error("Mismatched File Header!");
+			}
 
-			if (header.uiArgsDataSize == 0)
+			//Init Seg Buffer
+			char* pCodeSeg = new char[header.uiCodeSegSize];
+			ioYSTBStream.read(pCodeSeg, header.uiCodeSegSize);
+			char* pResSeg = new char[header.uiArgsSegSize];
+			ioYSTBStream.read(pResSeg, header.uiArgsSegSize);
+
+			//Analyzing VM
+			std::string mText;
+			std::wstring wText;
+			unsigned int count = 0;
+			for (size_t iteCodeSize = 0; iteCodeSize < header.uiCodeSegSize;)
 			{
-				*reinterpret_cast<unsigned int*>(aXorKey) = 0;
+				YSTB_InstEntry_V2* pIns = (YSTB_InstEntry_V2*)(pCodeSeg + iteCodeSize);
+
+				switch (pIns->ucOP)
+				{
+				case 0x38:
+				{
+					iteCodeSize += 0xA;
+					continue;
+				}
+				break;
+
+				//Parameter analysis
+				case 0x19:
+				{
+					if (!isAudioFileName) break;
+
+					size_t szBlock = pIns->ucArgs * 0xC + 6;
+					YSTB_ArgEntry_V2* pEntry = (YSTB_ArgEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
+
+					if (*(pResSeg + pEntry->uiArgRVA) == 0x4D && *(pResSeg + pEntry->uiArgRVA + 3) != 0x27)
+					{
+						mText.resize(pEntry->uiArgSize - 5);
+						memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiArgRVA + 4, pEntry->uiArgSize - 5);
+
+						if (mText.find("es.VoiceSetTask") != 0)
+						{
+							break;
+						}
+
+						pEntry += 1;
+
+						mText.resize(pEntry->uiArgSize - 5);
+						memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiArgRVA + 4, pEntry->uiArgSize - 5);
+						StrToWStr(mText, wText, uiCodePage);
+					}
+
+					//ParameterAnalysis(woText, mText, wText, pIns, pCodeSeg, pResSeg, iteCodeSize, uiCodePage);
+				}
+				break;
+
+				//Game Text
+				case 0x54:
+				{
+					if (isAudioFileName)
+					{
+						woText << L"Audio:" << wText << L'\n';
+					}
+
+					count++;
+
+					YSTB_ArgEntry_V2* pEntry = (YSTB_ArgEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);
+					mText.resize(pEntry->uiArgSize);
+					memcpy(const_cast<char*>(mText.data()), pResSeg + pEntry->uiArgRVA, pEntry->uiArgSize);
+#ifdef _DEBUG
+					woText
+						<< L"StrOffset:"
+						<< std::setw(0x8) << std::setfill(L'0') << std::hex
+						<< (int*)(header.uiCodeSegSize + pEntry->uiArgRVA + sizeof(header)) << L'\n';
+
+					woText
+						<< L"CodeOffset:"
+						<< std::setw(0x8) << std::setfill(L'0') << std::hex
+						<< iteCodeSize + sizeof(header) << L'\n';
+#endif
+					woText
+						<< L"CodePos:"
+						<< std::setw(0x8) << std::setfill(L'0') << std::hex
+						<< iteCodeSize << L'\n';
+
+					woText
+						<< L"Count  :" << std::setw(0x8) << std::setfill(L'0') << std::dec
+						<< count << L'\n';
+
+					StrToWStr(mText, wText, uiCodePage);
+
+					woText
+						<< L"Raw:" << wText << L"\n"
+						<< L"Tra:" << wText << L"\n\n";
+
+					wText.clear();
+				}
+				break;
+
+				}
+
+				//Size Of Code Block
+				iteCodeSize += pIns->ucArgs * 0xC + 6;
 			}
-			else
+
+			//Clean
+			woText.flush();
+			woText.close();
+			delete[] pCodeSeg;
+			delete[] pResSeg;
+
+			if (count == 0)
 			{
-				//Read The First AttributeDescriptor iOffset == 0
-				iYSTB.seekg(static_cast<std::streampos>(header.uiInstIndexSize + sizeof(YSTB_Header_V5) + 0x8));
-				iYSTB.read(reinterpret_cast<char*>(&key), 4);
+				DeleteFileW((wsFileName + L".txt").c_str());
+				std::wcout << L"Text not found" << std::endl;
+				return false;
 			}
+
+			return true;
 		}
-
-		*reinterpret_cast<unsigned int*>(aXorKey) = key;
-
-		iYSTB.close();
-	}
-
 }
-
+}

@@ -3,7 +3,7 @@
 
 namespace YurisLibrary
 {
-	namespace YPF_Struct
+	namespace YPF
 	{
 		/*
 		* YPF_File
@@ -13,7 +13,7 @@ namespace YurisLibrary
 		*/
 
 		//frome crass/cui/YU-RIS/YU-RIS.cpp
-		struct YPFHeader_V2
+		struct YPF_HDR_V2
 		{
 			char aSignature[4];                    // "YPF"
 			unsigned int uiVersion;                // version > 200
@@ -26,7 +26,7 @@ namespace YurisLibrary
 		};
 
 		#pragma pack(1)
-		struct YPFEntry_V5
+		struct YPF_Entry_V5
 		{
 			unsigned int uiRelativePathCrc;
 			unsigned char szRelativePath;          // NameSizeTable[0xFF-szName]

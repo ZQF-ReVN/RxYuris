@@ -4,7 +4,7 @@
 
 namespace YurisLibrary
 {
-    namespace YSTB_Struct
+    namespace YSTB
     {
         /*
         * YSTB_File_V5
@@ -28,21 +28,21 @@ namespace YurisLibrary
             uint32_t uiReserve0;        
         };
 
-        struct YSTB_InstEntry_V5
-        {
-            uint8_t ucOp;      // opcode
-            uint8_t ucArgc;    // arg count
-            uint8_t usUnknow0;
-            uint8_t ucUnknow1;
-        };
+        //struct YSTB_InstEntry_V5
+        //{
+        //    uint8_t ucOp;      // opcode
+        //    uint8_t ucArgc;    // arg count
+        //    uint8_t usUnknow0;
+        //    uint8_t ucUnknow1;
+        //};
 
-        struct YSTB_ArgsEntry_V5
-        {
-            uint16_t usArgID;
-            uint16_t usType; //(1 = long, 2 = double, 3 = string)
-            uint32_t uiSize;
-            uint32_t uiOffset;
-        };
+        //struct YSTB_ArgsEntry_V5
+        //{
+        //    uint16_t usArgID;
+        //    uint16_t usType; //(1 = long, 2 = double, 3 = string)
+        //    uint32_t uiSize;
+        //    uint32_t uiOffset;
+        //};
         //4D XX XX 22 ... 22      pushstring(quoted string with support for \\, \nand \t escape codes, but not \" or \')
 
 

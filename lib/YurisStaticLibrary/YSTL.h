@@ -6,23 +6,26 @@
 
 namespace YurisLibrary
 {
-    class YSTL
+    namespace YSTL
     {
-    private:
-        std::wstring m_wsYSTL;
-        std::ifstream m_ifsYSTL;
-        YSTL_Struct::YSTLHeader_V2 m_Header;
-        std::vector<YSTL_Struct::YSTLEntry_V5> m_vecEntry;
+        class YSTL_V5
+        {
+        private:
+            std::wstring m_wsYSTL;
+            std::ifstream m_ifsYSTL;
+            YSTLHeader_V2 m_Header;
+            std::vector<YSTLEntry_V5> m_vecEntry;
 
-    private:
-        bool InitIndex();
+        private:
+            bool InitIndex();
 
-    public:
-        YSTL(std::wstring wsYSTL);
-        ~YSTL();
+        public:
+            YSTL_V5(std::wstring wsYSTL);
+            ~YSTL_V5();
 
-        bool PrintIndexToFile();
-        bool MakeStructure();
-        bool BackStructure();
-    };
+            bool PrintIndexToFile();
+            bool MakeStructure();
+            bool BackStructure();
+        };
+    }
 }

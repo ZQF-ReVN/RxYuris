@@ -61,6 +61,7 @@ namespace YurisLibrary
 
 			void Init(const std::wstring& wsYSCM);
 			void ToJson(const std::wstring& wsJson);
+			std::vector<YSCM_Command_V5>& GetCommandList() { return m_vecCommand; }
 		};
 	}
 }

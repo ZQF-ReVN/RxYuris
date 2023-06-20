@@ -4,7 +4,7 @@
 
 namespace YurisLibrary
 {
-    namespace YSTL_Struct
+    namespace YSTL
     {
         //from https://github.com/arcusmaximus/VNTranslationTools/blob/main/VNTextPatch.Shared/Scripts/Yuris/Notes.txt
 

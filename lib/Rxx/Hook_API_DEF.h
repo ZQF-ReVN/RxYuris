@@ -19,4 +19,6 @@ typedef HANDLE(WINAPI* pCreateFileW)(LPCWSTR lpFileName, DWORD dwDesiredAccess, 
 
 typedef HMODULE(WINAPI* pLoadLibraryA)(LPCSTR lpLibFileName);
 
+typedef HMODULE(WINAPI* pLoadLibraryExA)(LPCSTR lpLibFileName, HANDLE hFile, DWORD dwFlags);
+
 typedef HRESULT(WINAPI* pSHGetFolderPathA)(HWND hwnd, int csidl, HANDLE hToken, DWORD dwFlags, LPSTR pszPath);
