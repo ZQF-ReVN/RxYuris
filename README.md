@@ -36,12 +36,12 @@ Import and export the dialogue text of the game in YSTB
 Supported version v.2.xx - v.2.99 
 
 ## YSTL Parse
-Recover file name and path structure from yst_list.ybn file
-Save file information to json
-Supported version v.3.xx - v.5.xx  
+Recover file name and path structure from yst_list.ybn file  
+Save file information to json  
+Supported version v.2.xx - v.5.xx  
 
 ## YPF Decode WZ
-Decrypt YPF file encrypted by the paid Chineseization group  
+Decrypt YPF file encrypted by the paid Chinese group  
 
 # References
 [VNTranslationTools](https://github.com/arcusmaximus/VNTranslationTools)  
