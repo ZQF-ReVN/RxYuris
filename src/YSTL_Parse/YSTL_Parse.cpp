@@ -23,7 +23,7 @@ int wmain(int argc, wchar_t* argv[])
 			<< "\tYSTL_Parse.exe -make\n"
 			<< "\tYSTL_Parse.exe -back\n\n";
 
-		system("pasue");
+		system("pause");
 		return 0;
 	}
 

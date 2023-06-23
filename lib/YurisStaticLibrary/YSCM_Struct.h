@@ -25,12 +25,12 @@ namespace YurisLibrary
             uint32_t uiCommandCount;
             uint32_t uiUnknow0;
         };
-		/*
+        /*
         struct YSCM_Command_V5
         {
         	uint8_t ucCommandName[??];
         	uint8_t uiArgsCount;
-        	YSC_Arg_V5[??]
+        	YSC_Arg_V5[uiArgsCount]
         }
         
         struct YSCM_Arg_V5
@@ -39,6 +39,6 @@ namespace YurisLibrary
         	uint8_t uiucUnknow0;
         	uint8_t uiucUnknow1;
         }
-		*/
+        */
 	}
 }

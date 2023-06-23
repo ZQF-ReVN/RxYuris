@@ -319,7 +319,7 @@ namespace YurisLibrary
 			return true;
 		}
 
-		void YSTB_V2::ParameterAnalysis(std::wofstream& woText, std::string& mText, std::wstring& wText, YSTB_InstEntry_V2* pIns, char* pCodeSeg, char* pResSeg, size_t iteCodeSize, unsigned int uiCodePage)
+		void YSTB_V2::ParameterAnalysis(std::wofstream& woText, std::string& mText, std::wstring& wText, YSTB_InstEntry_V2* pIns, char* pCodeSeg, char* pResSeg, size_t iteCodeSize, uint32_t uiCodePage)
 		{
 			size_t szBlock = pIns->ucArgs * 0xC + 6;
 			YSTB_ArgEntry_V2* pEntry = (YSTB_ArgEntry_V2*)(pCodeSeg + iteCodeSize + 0x6);

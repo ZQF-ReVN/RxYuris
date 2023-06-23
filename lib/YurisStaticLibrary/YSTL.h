@@ -42,6 +42,8 @@ namespace YurisLibrary
             void ToJson(const std::wstring& wsJson);
             void MakeStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder);
             void BackStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder);
+
+            std::vector<YSTL_Struct::YSTL_Entry_V5>& GetEntryList() { return m_vecEntry; }
         };
     }
 }

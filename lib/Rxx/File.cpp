@@ -11,11 +11,16 @@ namespace Rut
 {
 	namespace FileX
 	{
-		void SaveFileViaPath(const wchar_t* wpPath, void* pData, size_t nBytes)
+		void CreateDirectoryViaPath(const wchar_t* wpPath)
 		{
 			std::wstring dir = PathRemoveFileName(GetCurrentDirW() + wpPath);
 			FormatSlash_Ptr((wchar_t*)dir.c_str(), L'\\');
 			SHCreateDirectoryExW(NULL, dir.c_str(), NULL);
+		}
+
+		void SaveFileViaPath(const wchar_t* wpPath, void* pData, size_t nBytes)
+		{
+			CreateDirectoryViaPath(wpPath);
 
 			HANDLE hfile = CreateFileW(wpPath, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (hfile == INVALID_HANDLE_VALUE) { throw std::runtime_error("SaveFileViaRelaPath: Create File Error!"); }

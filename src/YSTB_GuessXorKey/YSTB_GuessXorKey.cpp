@@ -16,7 +16,7 @@ int wmain(int argc, wchar_t* argv[])
 			<< "YSTB_GuessXorKey:\n"
 			<< "\tChoose the largest ystb file as possible\n"
 			<< "Example\n"
-			<< "\YSTB_GuessXorKey.exe yst00004.ybn\n\n";
+			<< "\tYSTB_GuessXorKey.exe yst00004.ybn\n\n";
 
 		system("pasue");
 		return 0;
