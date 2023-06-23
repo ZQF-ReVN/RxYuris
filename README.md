@@ -2,15 +2,20 @@
 A Tool For Processing YU-RIS Engine  
 ## To Do List
 [o] YSTB Guess Xor Key (v.2.xx - v.5.xx)   
-[o] YSTB Dec (v.2.xx - v.5.xx)  
+[o] YSTB Xor (v.2.xx - v.5.xx)  
 [o] YSTB Text Dump (v.2.xx - v2.99)  
 [o] YSTB Text Dump Audio Files Name (v.2.xx - v2.99)  
 [o] YSTB Text Inset (v.2.xx - v2.99)  
-[o] YSTL Restore Files Name (tested v.5.xx)  
-[x] YSTL Restore Files Name (v.2.xx - v2.99)  
+[o] YSTL Parse (v.2.xx - v.5.xx)  
+[o] YSTL Make / Back File Structure (v.2.xx - v.5.xx)  
 [o] YSCM Parse (tested v.5.xx)  
 [o] YSCFG To Json (tested v.5.xx)   
-[x] YSCFG Write Back
+[x] YSCFG Write Back  
+[o] YSCOM Loader
+
+## YSCOM Loader
+Call the official YSCom.exe compiler  
+Save the generated file  
 
 ## YSCM Parse
 Get Commands Opcode / Name and Args ID / Name
@@ -18,23 +23,24 @@ Get Commands Opcode / Name and Args ID / Name
 ## YSCFG Editor
 Configure the yscfg. ybn file  
 
-## YSTBGuessKey
+## YSTB GuessXorKey
 Guess the key of YSTB  
 Supported version v.2.xx - v.5.xx  
 
-## YSTBXorFile
+## YSTB Xor
 Decrypt YSTB file  
 Supported version v.2.xx - v.5.xx  
 
-## YSTBV2TextEditor
+## YSTB TextEditor V2
 Import and export the dialogue text of the game in YSTB  
 Supported version v.2.xx - v.2.99 
 
-## YSTLMakeDirStructure
-Recover the file name and directory structure of ybn files from YSTL files  
+## YSTL Parse
+Recover file name and path structure from yst_list.ybn file
+Save file information to json
 Supported version v.3.xx - v.5.xx  
 
-## YPFDecodeFile_WZ
+## YPF Decode WZ
 Decrypt YPF file encrypted by the paid Chineseization group  
 
 # References
