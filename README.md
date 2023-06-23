@@ -8,7 +8,7 @@ A Tool For Processing YU-RIS Engine
 [o] YSTB Text Inset (v.2.xx - v2.99)  
 [o] YSTL Parse (v.2.xx - v.5.xx)  
 [o] YSTL Make / Back File Structure (v.2.xx - v.5.xx)  
-[o] YSCM Parse (tested v.5.xx)  
+[o] YSCM Parse (v.2.xx - v.5.xx)  
 [o] YSCFG To Json (tested v.5.xx)   
 [x] YSCFG Write Back  
 [o] YSCOM Loader
