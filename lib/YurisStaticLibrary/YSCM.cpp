@@ -9,6 +9,7 @@ namespace YurisLibrary
 		using namespace Rut::MemX;
 		using namespace Rut::FileX;
 
+
 		YSCM_Arg_V5::YSCM_Arg_V5()
 		{
 			m_uiValue0 = 0;

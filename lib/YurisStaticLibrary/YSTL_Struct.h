@@ -1,36 +1,36 @@
 ﻿#pragma once
-#include <string>
+#include <cstdint>
 
 
 namespace YurisLibrary
 {
-    namespace YSTL
+    namespace YSTL_Struct
     {
         //from https://github.com/arcusmaximus/VNTranslationTools/blob/main/VNTextPatch.Shared/Scripts/Yuris/Notes.txt
 
         /*
         * YSTLFile_V2
         * {
-        *   YSTLHeader_V2
-        *   YSTLEntry_V2[YSTListHeader_V2.iScriptCount]
+        *   YSTL_Header_V2
+        *   YSTL_Entry_V2[YSTL_Header_V2.uiScriptCount]
         * }
         */
-        struct YSTLHeader_V2
+        struct YSTL_Header
         {
-            char aSignature[4];               // YSTL
-            unsigned int uiVersion;
-            unsigned int uiEntryCount;
+            uint8_t  ucSignature[4];          // "YSTL"
+            uint32_t uiVersion;
+            uint32_t uiEntryCount;
         };
 
-        struct YSTLEntry_V2
+        struct YSTL_Entry_V2
         {
-            unsigned int uiSequence;
-            unsigned int szRelativePath;
-            char aRelativePath[256];          // aRelativePath[szRelativePath]
-            unsigned int uiHighDateTime;
-            unsigned int uiLowDateTime;
-            unsigned int uiUnknow00;
-            unsigned int uiUnknow01;
+            uint32_t uiSequence;
+            uint32_t uiPathSize;              // Char Count
+            uint8_t  ucPathStr[256];          // aRelativePath[szRelativePath]
+            uint32_t uiHighDateTime;          // LastWriteTime
+            uint32_t uiLowDateTime;
+            uint32_t uiUnknow00;
+            uint32_t uiUnknow01;
         };
 
 
@@ -38,19 +38,19 @@ namespace YurisLibrary
         * YSTLFile_V5
         * {
         *   YSTLHeader_V2
-        *   YSTLEntry_V5[YSTLHeader_V2.iScriptCount]
+        *   YSTL_Entry_V5[YSTL_Header_V2.uiScriptCount]
         * }
         */
-        struct YSTLEntry_V5
+        struct YSTL_Entry_V5
         {
-            unsigned int uiSequence;
-            unsigned int szRelativePath;
-            char aRelativePath[256];          // uiPathLength[szRelativePath]
-            unsigned int uiHighDateTime;
-            unsigned int uiLowDateTime;
-            unsigned int uiVariableCount;
-            unsigned int uiLabelCount;
-            unsigned int uiTextCount;
+            uint32_t uiSequence;
+            uint32_t uiPathSize;              // Char Count
+            uint8_t  ucPathStr[256];          // uiPathLength[szRelativePath]
+            uint32_t uiHighDateTime;
+            uint32_t uiLowDateTime;
+            uint32_t uiVariableCount;
+            uint32_t uiLabelCount;
+            uint32_t uiTextCount;
         };
     }
 }

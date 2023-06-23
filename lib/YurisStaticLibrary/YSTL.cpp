@@ -1,5 +1,6 @@
 ﻿#include "YSTL.h"
 #include "../Rxx/Str.h"
+#include "../Rxx/Mem.h"
 #include "../Rxx/File.h"
 
 #include <Windows.h>
@@ -13,114 +14,269 @@ namespace YurisLibrary
 	namespace YSTL
 	{
 		using namespace Rut::StrX;
+		using namespace Rut::MemX;
 		using namespace Rut::FileX;
+		using namespace YSTL_Struct;
 
-		YSTL_V5::YSTL_V5(std::wstring wsYSTL) :
-			m_Header{ 0 },
-			m_wsYSTL(wsYSTL)
+		YSTL_V2::YSTL_V2()
 		{
-			m_ifsYSTL.open(m_wsYSTL, std::ios::binary);
-			InitIndex();
+			this->m_Header = { 0 };
 		}
 
-		YSTL_V5::~YSTL_V5()
+		YSTL_V2::YSTL_V2(const std::wstring& wsYSTL)
 		{
-			if (m_ifsYSTL.is_open())
+			Init(wsYSTL);
+		}
+
+		void YSTL_V2::Init(const std::wstring& wsYSTL)
+		{
+			AutoMem ystl_buf(wsYSTL);
+
+			uint8_t* header_ptr = ystl_buf;
+			m_Header = *(YSTL_Header*)header_ptr;
+
+			if (m_Header.uiVersion > 300) { throw std::runtime_error("Incorrect Version!"); }
+
+			YSTL_Entry_V2 entry = { 0 };
+			uint8_t* entry_ptr = header_ptr + sizeof(m_Header);
+			for (uint32_t ite_entry = 0; ite_entry < m_Header.uiEntryCount; ite_entry++)
 			{
-				m_ifsYSTL.close();
+				entry.uiSequence = *(uint32_t*)(entry_ptr + 0x0);
+				entry.uiPathSize = *(uint32_t*)(entry_ptr + 0x4);
+
+				memcpy(entry.ucPathStr, entry_ptr + 0x8, entry.uiPathSize);
+				entry.ucPathStr[entry.uiPathSize] = '\0';
+
+				entry_ptr += 0x8 + entry.uiPathSize;
+
+				entry.uiHighDateTime = *(uint32_t*)(entry_ptr + 0x0);
+				entry.uiLowDateTime = *(uint32_t*)(entry_ptr + 0x4);
+				entry.uiUnknow00 = *(uint32_t*)(entry_ptr + 0x8);
+				entry.uiUnknow01 = *(uint32_t*)(entry_ptr + 0xC);
+
+				m_vecEntry.emplace_back(entry);
+
+				entry_ptr += 0x10;
 			}
 		}
 
-		bool YSTL_V5::InitIndex()
+		void YSTL_V2::ToJson(const std::wstring& wsJson)
 		{
-			if (!m_ifsYSTL.is_open()) return false;
+			std::wofstream ofs_json = CreateFileUTF8Stream(wsJson);
+			ofs_json << L"{\n";
 
-			char* pIndex = nullptr;
-			m_ifsYSTL.read(reinterpret_cast<char*>(&m_Header), sizeof(m_Header));
-			pIndex = new char[static_cast<size_t>(GetFileSize(m_ifsYSTL)) - sizeof(m_Header)];
-			m_ifsYSTL.read(pIndex, GetFileSize(m_ifsYSTL) - sizeof(m_Header));
+			ofs_json << L"\t\"YSTL_Header\":\n\t{\n";
+			ofs_json << L"\t\t\"Signature\" : " << L"\"" << L"YSTL" << L"\",\n";
+			ofs_json << L"\t\t\"Version\"   : " << L"\"" << m_Header.uiVersion << L"\",\n";
+			ofs_json << L"\t\t\"EntryCount\": " << L"\"" << m_Header.uiEntryCount << L"\",\n";
+			ofs_json << L"\t},\n\n";
 
-			char* pEntry = pIndex;
-			YSTLEntry_V5 Entry = { 0 };
-			for (size_t iteEntry = 0; iteEntry < m_Header.uiEntryCount; iteEntry++)
+			ofs_json << L"\t\"YSTL_Entry\":\n\t[\n";
+			for (auto& entry : m_vecEntry)
 			{
-				Entry.uiSequence = *(unsigned int*)(pEntry + 0);
-				Entry.szRelativePath = *(unsigned int*)(pEntry + 0x4);
+				ofs_json << L"\t\t{\n";
+				ofs_json << L"\t\t\t\"Sequence\"  : " << L"\"" << entry.uiSequence << L"\",\n";
+				ofs_json << L"\t\t\t\"ScriptPath\": " << L"\"" << StrToWStr(FormatSlash((char*)entry.ucPathStr, L'/'), 932) << L"\",\n";
 
-				memcpy(Entry.aRelativePath, pEntry + 0x8, Entry.szRelativePath);
-				Entry.aRelativePath[Entry.szRelativePath] = '\0';
-				pEntry += Entry.szRelativePath + 0x8;
+				SYSTEMTIME system_time = { 0 };
+				FILETIME file_time = { 0 }, file_time_local = { 0 };
+				file_time.dwHighDateTime = entry.uiHighDateTime;
+				file_time.dwLowDateTime = entry.uiLowDateTime;
+				FileTimeToLocalFileTime(&file_time, &file_time_local);
+				FileTimeToSystemTime(&file_time, &system_time);
+				wchar_t time_str[MAX_PATH] = { 0 };
+				swprintf_s
+				(
+					time_str, MAX_PATH,
+					L"%d-%d-%d %02d:%02d:%02d",
+					system_time.wYear, system_time.wMonth, system_time.wDay, system_time.wHour, system_time.wMinute, system_time.wMilliseconds
+				);
+				ofs_json << L"\t\t\t\"LastWrite\" : " << L"\"" << time_str << L"\",\n";
 
-				memcpy(&Entry.uiHighDateTime, pEntry, sizeof(Entry) - sizeof(Entry.aRelativePath) - 8);
-				pEntry += 20;
+				ofs_json << L"\t\t\t\"Unknow00\"  : " << L"\"" << (uint32_t*)entry.uiUnknow00 << L"\",\n";
+				ofs_json << L"\t\t\t\"Unknow01\"  : " << L"\"" << (uint32_t*)entry.uiUnknow01 << L"\",\n";
 
-				m_vecEntry.emplace_back(Entry);
+				ofs_json << L"\t\t},\n\n";
+
 			}
-			pEntry = nullptr;
+			ofs_json << L"\t],\n";
 
-			delete[] pIndex;
-			pIndex = nullptr;
 
-			return true;
+			ofs_json << L"}\n";
 		}
 
-		bool YSTL_V5::PrintIndexToFile()
+		void YSTL_V2::MakeStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
 		{
-			std::wofstream woText(L"YSTList_Info.txt");
-			woText.imbue(GetCVT_UTF8());
-			if (!woText.is_open()) return false;
+			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring yst_dir = cur_dir + wsBinFolder + L"\\";
+			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
 
-			std::string mPath;
-			std::wstring wPath;
-			wchar_t aYSTB[13] = { 0 };
+			wchar_t yst_name_buf[13] = { 0 };
 			for (auto& iteEntry : m_vecEntry)
 			{
-				swprintf_s(aYSTB, L"yst%05d.ybn", iteEntry.uiSequence);
-				woText << L"YSTB File   :" << aYSTB << L'\n';
+				std::string  script_rel_path = FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
 
-				mPath = iteEntry.aRelativePath;
-				StrToWStr(mPath, wPath, 932);
-				woText << L"RelativePath:" << wPath << L'\n';
+				SHCreateDirectoryExW(NULL, PathRemoveFileName(script_full_path).c_str(), NULL);
 
-				woText << L"TextCount   :" << iteEntry.uiTextCount << L"\n\n";
+				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
+				std::wstring yst_full_path = yst_dir + yst_name_buf;
+
+				CopyFileW(yst_full_path.c_str(), script_full_path.c_str(), FALSE);
 			}
-
-			woText.flush();
-			woText.close();
-			return true;
 		}
 
-		bool YSTL_V5::MakeStructure()
+		void YSTL_V2::BackStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
 		{
-			std::wstring cur_dir = GetCurrentDirW() + L"\\Make\\";
+			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring yst_dir = cur_dir + wsBinFolder + L"_new" + L"\\";
+			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
 
-			std::string rel_path;
-			std::wstring full_path;
-			std::wstring full_dir;
-			wchar_t aYSTB[13] = { 0 };
+			CreateDirectoryW(yst_dir.c_str(), NULL);
+
+			wchar_t yst_name_buf[13] = { 0 };
 			for (auto& iteEntry : m_vecEntry)
 			{
-				//Get Full Path
-				rel_path = FormatSlash(iteEntry.aRelativePath, '\\');
-				full_path = cur_dir + StrToWStr(rel_path, 932);
+				std::string  script_rel_path = FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
 
-				//Crete Dir
-				full_dir = PathRemoveFileName(full_path);
-				SHCreateDirectoryExW(NULL, full_dir.c_str(), NULL);
+				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
+				std::wstring yst_full_path = yst_dir + yst_name_buf;
 
-				//Get YSTB File Name
-				swprintf_s(aYSTB, L"yst%05d.ybn", iteEntry.uiSequence);
-
-				//Copy File
-				CopyFileW(aYSTB, full_path.c_str(), FALSE);
+				CopyFileW(script_full_path.c_str(), yst_full_path.c_str(), FALSE);
 			}
-
-			return true;
 		}
 
-		bool YSTL_V5::BackStructure()
+
+		YSTL_V5::YSTL_V5()
 		{
-			return true;
+			this->m_Header = { 0 };
+		}
+
+		YSTL_V5::YSTL_V5(const std::wstring& wsYSTL)
+		{
+			Init(wsYSTL);
+		}
+
+		void YSTL_V5::Init(const std::wstring& wsYSTL)
+		{
+			AutoMem ystl_buf(wsYSTL);
+
+			uint8_t* header_ptr = ystl_buf;
+			m_Header = *(YSTL_Header*)header_ptr;
+
+			if (m_Header.uiVersion < 300) { throw std::runtime_error("Incorrect Version!"); }
+
+			YSTL_Entry_V5 entry = { 0 };
+			uint8_t* entry_ptr = header_ptr + sizeof(m_Header);
+			for (uint32_t ite_entry = 0; ite_entry < m_Header.uiEntryCount; ite_entry++)
+			{
+				entry.uiSequence = *(uint32_t*)(entry_ptr + 0x0);
+				entry.uiPathSize = *(uint32_t*)(entry_ptr + 0x4);
+				
+				memcpy(entry.ucPathStr, entry_ptr + 0x8, entry.uiPathSize);
+				entry.ucPathStr[entry.uiPathSize] = '\0';
+
+				entry_ptr += 0x8 + entry.uiPathSize;
+
+				entry.uiHighDateTime  = *(uint32_t*)(entry_ptr + 0x0);
+				entry.uiLowDateTime   = *(uint32_t*)(entry_ptr + 0x4);
+				entry.uiVariableCount = *(uint32_t*)(entry_ptr + 0x8);
+				entry.uiLabelCount    = *(uint32_t*)(entry_ptr + 0xC);
+				entry.uiTextCount     = *(uint32_t*)(entry_ptr + 0x10);
+
+				m_vecEntry.emplace_back(entry);
+
+				entry_ptr += 0x14 ;
+			}
+		}
+
+		void YSTL_V5::ToJson(const std::wstring& wsJson)
+		{
+			std::wofstream ofs_json = CreateFileUTF8Stream(wsJson);
+			ofs_json << L"{\n";
+
+			ofs_json << L"\t\"YSTL_Header\":\n\t{\n";
+			ofs_json << L"\t\t\"Signature\" : " << L"\"" << L"YSTL" << L"\",\n";
+			ofs_json << L"\t\t\"Version\"   : " << L"\"" << m_Header.uiVersion << L"\",\n";
+			ofs_json << L"\t\t\"EntryCount\": " << L"\"" << m_Header.uiEntryCount << L"\",\n";
+			ofs_json << L"\t},\n\n";
+
+			ofs_json << L"\t\"YSTL_Entry\":\n\t[\n";
+			for (auto& entry : m_vecEntry)
+			{
+				ofs_json << L"\t\t{\n";
+				ofs_json << L"\t\t\t\"Sequence\"     : " << L"\"" << entry.uiSequence << L"\",\n";
+				ofs_json << L"\t\t\t\"ScriptPath\"   : " << L"\"" << StrToWStr(FormatSlash((char*)entry.ucPathStr, L'/'), 932) << L"\",\n";
+
+				SYSTEMTIME system_time = { 0 };
+				FILETIME file_time = { 0 }, file_time_local = { 0 };
+				file_time.dwHighDateTime = entry.uiHighDateTime;
+				file_time.dwLowDateTime = entry.uiLowDateTime;
+				FileTimeToLocalFileTime(&file_time, &file_time_local);
+				FileTimeToSystemTime(&file_time, &system_time);
+				wchar_t time_str[MAX_PATH] = { 0 };
+				swprintf_s
+				(
+					time_str, MAX_PATH,
+					L"%d-%d-%d %02d:%02d:%02d",
+					system_time.wYear, system_time.wMonth, system_time.wDay, system_time.wHour, system_time.wMinute, system_time.wMilliseconds
+				);
+				ofs_json << L"\t\t\t\"LastWrite\"    : " << L"\"" << time_str << L"\",\n";
+
+				ofs_json << L"\t\t\t\"VariableCount\": " << L"\"" << entry.uiVariableCount << L"\",\n";
+				ofs_json << L"\t\t\t\"LabelCount\"   : " << L"\"" << entry.uiLabelCount << L"\",\n";
+				ofs_json << L"\t\t\t\"TextCount\"    : " << L"\"" << entry.uiTextCount << L"\",\n";
+
+				ofs_json << L"\t\t},\n\n";
+
+			}
+			ofs_json << L"\t],\n";
+
+
+			ofs_json << L"}\n";
+		}
+
+		void YSTL_V5::MakeStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
+		{
+			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring yst_dir = cur_dir + wsBinFolder + L"\\";
+			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
+
+			wchar_t yst_name_buf[13] = { 0 };
+			for (auto& iteEntry : m_vecEntry)
+			{
+				std::string  script_rel_path  = FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
+
+				SHCreateDirectoryExW(NULL, PathRemoveFileName(script_full_path).c_str(), NULL);
+
+				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
+				std::wstring yst_full_path = yst_dir + yst_name_buf;
+
+				CopyFileW(yst_full_path.c_str(), script_full_path.c_str(), FALSE);
+			}
+		}
+
+		void YSTL_V5::BackStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
+		{
+			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring yst_dir = cur_dir + wsBinFolder + L"_new" + L"\\";
+			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
+
+			CreateDirectoryW(yst_dir.c_str(), NULL);
+
+			wchar_t yst_name_buf[13] = { 0 };
+			for (auto& iteEntry : m_vecEntry)
+			{
+				std::string  script_rel_path = FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
+
+				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
+				std::wstring yst_full_path = yst_dir + yst_name_buf;
+
+				CopyFileW(script_full_path.c_str(), yst_full_path.c_str(), FALSE);
+			}
 		}
 	}
 }

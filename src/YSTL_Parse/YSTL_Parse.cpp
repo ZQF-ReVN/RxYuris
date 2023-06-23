@@ -1,46 +1,86 @@
 ﻿#include <iostream>
 
+#include "../../lib/Rxx/File.h"
 #include "../../lib/YurisStaticLibrary/YSTL.h"
 
+using namespace Rut::FileX;
 using namespace YurisLibrary;
 
 
-void YSTLStructure()
+int wmain(int argc, wchar_t* argv[])
 {
-	auto fileName = LR"(yst_list.ybn)";
-	char flag = 0;
+	if (argc <= 1) 
+	{ 
+		std::cout
+			<< "YSTL_Parse:\n"
+			<< "\tPut the ysbin folder into the current directory\n"
+			<< "Command:\n"
+			<< "\t-json   printf ystl info to json file, save as ystl.json\n"
+			<< "\t-make   copy and move file directory structure, save in script folder\n"
+			<< "\t-back   copy and rename all script file to ystxx.ybn, save in ysbin_new folder\n"
+			<< "Example\n"
+			<< "\tYSTL_Parse.exe -json\n"
+			<< "\tYSTL_Parse.exe -make\n"
+			<< "\tYSTL_Parse.exe -back\n\n";
 
-	std::cout
-		<< "input m make directary and rename .ybn to real file name.\n"
-		<< "input r restore file and file name from directory.\n"
-		<< "input i exporting information to text.\n\n"
-		<< "input:";
-	std::cin >> flag;
-	std::cout << std::endl;
-
-	YSTL::YSTL_V5 yst(fileName);
-	if (flag == 'm')
-	{
-		yst.MakeStructure();
-		std::cout << "Save As ysbin_MakeDir\n";
+		system("pasue");
+		return 0;
 	}
 
-	//if (flag == 'r')
-	//{
-	//	yst.RestoreDir();
-	//	std::cout << "Save As ysbin_RestoreDir\n";
-	//}
+	uint32_t version = 0;
+	std::ifstream ifs_ystl = OpenFileBinaryStream(L"ysbin/yst_list.ybn");
+	ifs_ystl.seekg(0x4, std::ios::beg);
+	ifs_ystl.read((char*)&version, 4);
 
-	if (flag == 'i')
+	try
 	{
-		yst.PrintIndexToFile();
-		std::cout << "Save As YSTList_Info.txt\n";
+		const wchar_t* command = argv[1];
+
+		if (version < 300)
+		{
+			YSTL::YSTL_V2 yst;
+			yst.Init(L"ysbin/yst_list.ybn");
+
+			if (!wcscmp(command,L"-json"))
+			{
+				yst.ToJson(L"ystl.json");
+				std::cout << "Save As ystl.json\n";
+			}
+			else if (!wcscmp(command, L"-make"))
+			{
+				yst.MakeStructure(L"ysbin", L"script");
+				std::cout << "Save Folder script\n";
+			}
+			else if (!wcscmp(command, L"-back"))
+			{
+				yst.BackStructure(L"ysbin", L"script");
+				std::cout << "Save Folder ysbin_new\n";
+			}
+		}
+		else
+		{
+			YSTL::YSTL_V5 yst;
+			yst.Init(L"ysbin/yst_list.ybn");
+
+			if (!wcscmp(command, L"-json"))
+			{
+				yst.ToJson(L"ystl.json");
+				std::cout << "Save As ystl.json\n";
+			}
+			else if (!wcscmp(command, L"-make"))
+			{
+				yst.MakeStructure(L"ysbin", L"script");
+				std::cout << "Save Folder script\n";
+			}
+			else if (!wcscmp(command, L"-back"))
+			{
+				yst.BackStructure(L"ysbin", L"script");
+				std::cout << "Save Folder ysbin_new\n";
+			}
+		}
 	}
-
-	system("pause");
-}
-
-int main()
-{
-	YSTLStructure();
+	catch (const std::runtime_error& err)
+	{
+		std::cerr << err.what() << std::endl;
+	}
 }

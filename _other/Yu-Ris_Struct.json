@@ -138,5 +138,56 @@
 		],
 
 		"YSC_UnknowTable_V5":{},
-	}
+	},
+
+	"YSTL_File_V2":
+	{
+		"YSTL_Header":
+		{
+			"ucSignature"
+			"uiVersion"
+			"uiEntryCount"
+		},
+
+		"YSTL_Entry":
+		[
+			{
+				"uiSequence"
+				"uiPathSize"
+				"ucPathStr"
+				"uiHighDateTime"
+				"uiLowDateTime"
+				"uiUnknow00"
+				"uiUnknow01"
+			},
+			{},
+			{},
+		],
+	},
+
+	"YSTL_File_V5":
+	{
+		"YSTL_Header":
+		{
+			"ucSignature"
+			"uiVersion"
+			"uiEntryCount"
+		},
+
+		"YSTL_Entry":
+		[
+			{
+				"uiSequence"
+				"uiPathSize"
+				"ucPathStr"
+				"uiHighDateTime"
+				"uiLowDateTime"
+				"uiVariableCount"
+				"uiLabelCount"
+				"uiTextCount"
+			},
+			{},
+			{},
+		],
+	},
 }
