@@ -1,11 +1,15 @@
 #include <iostream>
-
+#include "../../lib/Rut/RxPath.h"
+#include "../../lib/Rut/RxStream.h"
+#include "../../lib/Rut/RxString.h"
 
 #include "../../lib/YurisStaticLibrary/YSTL.h"
 #include "../../lib/YurisStaticLibrary/YSCM.h"
 #include "../../lib/YurisStaticLibrary/YSTB.h"
 
+using namespace Rut;
 using namespace YurisLibrary;
+
 
 class YSTB_TextEditor_V5
 {
@@ -39,7 +43,7 @@ private:
 		{
 			if (entry.uiTextCount > 0)
 			{
-				m_vecScenList.emplace_back(Rut::StrX::StrToWStr(Rut::FileX::FormatSlash((char*)entry.ucPathStr, L'/'), 932));
+				m_vecScenList.emplace_back(RxString::ToWCS(RxPath::FormatSlash((char*)entry.ucPathStr, L'/'), 932));
 			}
 		}
 	}
@@ -74,16 +78,17 @@ public:
 					text.resize(str_len);
 					memcpy((char*)text.data(), str_ptr, str_len);
 
-					text_list.emplace_back(Rut::StrX::StrToWStr(text, 932));
+					text_list.emplace_back(RxString::ToWCS(text, 932));
 				}
 			}
 
 			std::wstring text_file_path = m_wsScriptFolder + L"_new" + L"/" + scn;
-			Rut::FileX::CreateDirectoryViaPath(text_file_path.c_str());
-			std::wofstream ofs_text = Rut::FileX::CreateFileUTF8Stream(text_file_path);
+			RxPath::MakeDirViaPath(text_file_path);
+			RxStream::Text ofs_text = { text_file_path, RIO::RIO_OUT, RFM::RFM_UTF8 };
 			for (auto& text : text_list)
 			{
-				ofs_text << text << L'\n';
+				ofs_text.WriteLine(text.c_str());
+				ofs_text.WriteLine(L"\n");
 			}
 
 			text_list.clear();

@@ -1,9 +1,9 @@
 ﻿#include "YSCOM.h"
 #include "YSTB.h"
 #include "YSCOM_Struct.h"
-#include "../../lib/Rxx/File.h"
+#include "../Rut/RxPath.h"
+#include "../Rut/RxStream.h"
 
-#include <iostream>
 #include <Windows.h>
 
 
@@ -11,7 +11,7 @@ namespace YurisLibrary
 {
 	namespace YSCOM
 	{
-		using namespace Rut::FileX;
+		using namespace Rut;
 
 		YSCOM_Loader::YSCOM_Loader()
 		{
@@ -30,7 +30,7 @@ namespace YurisLibrary
 			hdr_ptr->uiEngineVersion = uiVersion; // 490, 486
 
 			// set project dir
-			std::string current_path = GetCurrentDirA();
+			std::string current_path = RxPath::GetCurrentDirA();
 			lstrcpyA((CHAR*)hdr_ptr->ucProjectPath, current_path.c_str());
 
 			// Setup Compiler exe
@@ -105,8 +105,8 @@ namespace YurisLibrary
 				uint8_t* bin_data_ptr = bin_ptr + 4 + bin_name_size + 4;
 
 				coder.Xor(bin_data_ptr);
-				SaveFileViaPath(bin_name.c_str(), bin_data_ptr, bin_size);
-				std::cout << "Save: -> " << bin_name.c_str() << '\n';
+				RxStream::SaveFileViaPath(bin_name.c_str(), bin_data_ptr, bin_size);
+				RxStream::PutConsoleFormat("Save: -> %s\n", bin_name.c_str());
 
 				bin_ptr += 4 + bin_name_size + 4 + bin_size;
 			}

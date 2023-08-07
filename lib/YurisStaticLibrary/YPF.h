@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <vector>
-#include <fstream>
+
 #include "YPF_Struct.h"
 
 
@@ -13,7 +13,6 @@ namespace YurisLibrary
 		{
 		private:
 			std::wstring m_wsYPF;
-			std::ifstream m_ifsYPF;
 			YPF_HDR_V2 m_Header;
 			std::vector<YPF_Entry_V5> m_vecEntry;
 

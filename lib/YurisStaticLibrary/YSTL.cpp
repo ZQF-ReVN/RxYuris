@@ -1,7 +1,7 @@
 ﻿#include "YSTL.h"
-#include "../Rxx/Str.h"
-#include "../Rxx/Mem.h"
-#include "../Rxx/File.h"
+#include "../Rut/RxPath.h"
+#include "../Rut/RxStream.h"
+#include "../Rut/RxString.h"
 
 #include <Windows.h>
 #include <shlobj_core.h>
@@ -13,9 +13,7 @@ namespace YurisLibrary
 {
 	namespace YSTL
 	{
-		using namespace Rut::StrX;
-		using namespace Rut::MemX;
-		using namespace Rut::FileX;
+		using namespace Rut;
 		using namespace YSTL_Struct;
 
 		YSTL_V2::YSTL_V2()
@@ -30,12 +28,12 @@ namespace YurisLibrary
 
 		void YSTL_V2::Init(const std::wstring& wsYSTL)
 		{
-			AutoMem ystl_buf(wsYSTL);
+			RxStream::AutoMem ystl_buf(wsYSTL);
 
 			uint8_t* header_ptr = ystl_buf;
 			m_Header = *(YSTL_Header*)header_ptr;
 
-			if (m_Header.uiVersion > 300) { throw std::runtime_error("Incorrect Version!"); }
+			if (m_Header.uiVersion > 466) { throw std::runtime_error("Incorrect Version!"); }
 
 			YSTL_Entry_V2 entry = { 0 };
 			uint8_t* entry_ptr = header_ptr + sizeof(m_Header);
@@ -62,7 +60,7 @@ namespace YurisLibrary
 
 		void YSTL_V2::ToJson(const std::wstring& wsJson)
 		{
-			std::wofstream ofs_json = CreateFileUTF8Stream(wsJson);
+			std::wofstream ofs_json;
 			ofs_json << L"{\n";
 
 			ofs_json << L"\t\"YSTL_Header\":\n\t{\n";
@@ -76,7 +74,7 @@ namespace YurisLibrary
 			{
 				ofs_json << L"\t\t{\n";
 				ofs_json << L"\t\t\t\"Sequence\"  : " << L"\"" << entry.uiSequence << L"\",\n";
-				ofs_json << L"\t\t\t\"ScriptPath\": " << L"\"" << StrToWStr(FormatSlash((char*)entry.ucPathStr, L'/'), 932) << L"\",\n";
+				ofs_json << L"\t\t\t\"ScriptPath\": " << L"\"" << RxString::ToWCS(RxPath::FormatSlash((char*)entry.ucPathStr, L'/'), 932) << L"\",\n";
 
 				SYSTEMTIME system_time = { 0 };
 				FILETIME file_time = { 0 }, file_time_local = { 0 };
@@ -107,17 +105,17 @@ namespace YurisLibrary
 
 		void YSTL_V2::MakeStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
 		{
-			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring cur_dir = RxPath::GetCurrentDirW();
 			std::wstring yst_dir = cur_dir + wsBinFolder + L"\\";
 			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
 
 			wchar_t yst_name_buf[13] = { 0 };
 			for (auto& iteEntry : m_vecEntry)
 			{
-				std::string  script_rel_path = FormatSlash((char*)iteEntry.ucPathStr, '\\');
-				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
+				std::string  script_rel_path = RxPath::FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + RxString::ToWCS(script_rel_path, 932);
 
-				SHCreateDirectoryExW(NULL, PathRemoveFileName(script_full_path).c_str(), NULL);
+				SHCreateDirectoryExW(NULL, RxPath::PathRemoveFileName(script_full_path).c_str(), NULL);
 
 				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
 				std::wstring yst_full_path = yst_dir + yst_name_buf;
@@ -128,7 +126,7 @@ namespace YurisLibrary
 
 		void YSTL_V2::BackStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
 		{
-			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring cur_dir = RxPath::GetCurrentDirW();
 			std::wstring yst_dir = cur_dir + wsBinFolder + L"_new" + L"\\";
 			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
 
@@ -137,8 +135,8 @@ namespace YurisLibrary
 			wchar_t yst_name_buf[13] = { 0 };
 			for (auto& iteEntry : m_vecEntry)
 			{
-				std::string  script_rel_path = FormatSlash((char*)iteEntry.ucPathStr, '\\');
-				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
+				std::string  script_rel_path = RxPath::FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + RxString::ToWCS(script_rel_path, 932);
 
 				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
 				std::wstring yst_full_path = yst_dir + yst_name_buf;
@@ -160,7 +158,7 @@ namespace YurisLibrary
 
 		void YSTL_V5::Init(const std::wstring& wsYSTL)
 		{
-			AutoMem ystl_buf(wsYSTL);
+			RxStream::AutoMem ystl_buf(wsYSTL);
 
 			uint8_t* header_ptr = ystl_buf;
 			m_Header = *(YSTL_Header*)header_ptr;
@@ -193,7 +191,7 @@ namespace YurisLibrary
 
 		void YSTL_V5::ToJson(const std::wstring& wsJson)
 		{
-			std::wofstream ofs_json = CreateFileUTF8Stream(wsJson);
+			std::wofstream ofs_json;
 			ofs_json << L"{\n";
 
 			ofs_json << L"\t\"YSTL_Header\":\n\t{\n";
@@ -207,7 +205,7 @@ namespace YurisLibrary
 			{
 				ofs_json << L"\t\t{\n";
 				ofs_json << L"\t\t\t\"Sequence\"     : " << L"\"" << entry.uiSequence << L"\",\n";
-				ofs_json << L"\t\t\t\"ScriptPath\"   : " << L"\"" << StrToWStr(FormatSlash((char*)entry.ucPathStr, L'/'), 932) << L"\",\n";
+				ofs_json << L"\t\t\t\"ScriptPath\"   : " << L"\"" << RxString::ToWCS(RxPath::FormatSlash((char*)entry.ucPathStr, L'/'), 932) << L"\",\n";
 
 				SYSTEMTIME system_time = { 0 };
 				FILETIME file_time = { 0 }, file_time_local = { 0 };
@@ -239,17 +237,17 @@ namespace YurisLibrary
 
 		void YSTL_V5::MakeStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
 		{
-			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring cur_dir = RxPath::GetCurrentDirW();
 			std::wstring yst_dir = cur_dir + wsBinFolder + L"\\";
 			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
 
 			wchar_t yst_name_buf[13] = { 0 };
 			for (auto& iteEntry : m_vecEntry)
 			{
-				std::string  script_rel_path  = FormatSlash((char*)iteEntry.ucPathStr, '\\');
-				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
+				std::string  script_rel_path  = RxPath::FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + RxString::ToWCS(script_rel_path, 932);
 
-				SHCreateDirectoryExW(NULL, PathRemoveFileName(script_full_path).c_str(), NULL);
+				SHCreateDirectoryExW(NULL, RxPath::PathRemoveFileName(script_full_path).c_str(), NULL);
 
 				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
 				std::wstring yst_full_path = yst_dir + yst_name_buf;
@@ -260,7 +258,7 @@ namespace YurisLibrary
 
 		void YSTL_V5::BackStructure(const std::wstring& wsBinFolder, const std::wstring& wsScriptFolder)
 		{
-			std::wstring cur_dir = GetCurrentDirW();
+			std::wstring cur_dir = RxPath::GetCurrentDirW();
 			std::wstring yst_dir = cur_dir + wsBinFolder + L"_new" + L"\\";
 			std::wstring script_dir = cur_dir + wsScriptFolder + L"\\";
 
@@ -269,8 +267,8 @@ namespace YurisLibrary
 			wchar_t yst_name_buf[13] = { 0 };
 			for (auto& iteEntry : m_vecEntry)
 			{
-				std::string  script_rel_path = FormatSlash((char*)iteEntry.ucPathStr, '\\');
-				std::wstring script_full_path = script_dir + StrToWStr(script_rel_path, 932);
+				std::string  script_rel_path = RxPath::FormatSlash((char*)iteEntry.ucPathStr, '\\');
+				std::wstring script_full_path = script_dir + RxString::ToWCS(script_rel_path, 932);
 
 				swprintf_s(yst_name_buf, L"yst%05d.ybn", iteEntry.uiSequence);
 				std::wstring yst_full_path = yst_dir + yst_name_buf;

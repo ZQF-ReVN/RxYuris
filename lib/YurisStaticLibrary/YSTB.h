@@ -2,8 +2,9 @@
 #include <string>
 #include <vector>
 
-#include "../Rxx/Mem.h"
 #include "YSTB_Struct.h"
+#include "../Rut/RxStream.h"
+
 
 
 namespace YurisLibrary
@@ -16,7 +17,8 @@ namespace YurisLibrary
 			uint32_t m_uiXorKey;
 
 		public:
-			YSTB_Coder(uint32_t uiXorKey);
+			YSTB_Coder() : m_uiXorKey(0) {};
+			YSTB_Coder(uint32_t uiXorKey) : m_uiXorKey(uiXorKey) {};
 
 			bool Xor(uint8_t* pYSTB);
 			bool Xor(const std::wstring& wsEnc, const std::wstring& wsDec);
@@ -29,7 +31,7 @@ namespace YurisLibrary
 			uint16_t m_usArgID;
 			uint16_t m_usArgType;
 			uint32_t m_uiArgSize;
-			Rut::MemX::AutoMem m_amArgData;
+			Rut::RxStream::AutoMem m_amArgData;
 
 		public:
 			YSTB_Arg_V5();

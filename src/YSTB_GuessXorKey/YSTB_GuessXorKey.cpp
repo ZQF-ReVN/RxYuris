@@ -2,9 +2,9 @@
 
 #include "../../lib/YurisStaticLibrary/YSTB.h"
 
-#include "../../lib/Rxx/File.h"
+#include "../../lib/Rut/RxStream.h"
 
-using namespace Rut::FileX;
+using namespace Rut;
 using namespace YurisLibrary;
 
 
@@ -24,10 +24,9 @@ int wmain(int argc, wchar_t* argv[])
 
 	try
 	{
-		YSTB::YSTB_Coder coder(0);
-		uint32_t key = coder.GetXorKey(argv[1]);
-		std::ofstream ofs_text = CreateFileANSIStream(L"Key.txt");
-		ofs_text << "0x" << std::hex << (uint32_t*)key << std::endl;
+		char key_str_buf[0xF] = { 0 };
+		sprintf_s(key_str_buf, sizeof(key_str_buf), "0x%X", YSTB::YSTB_Coder().GetXorKey(argv[1]));
+		RxStream::Text(L"Key.txt", RIO::RIO_OUT, RFM::RFM_ANSI).WriteLine(key_str_buf);
 	}
 	catch (const std::runtime_error& err)
 	{

@@ -1,9 +1,9 @@
 ﻿#include <iostream>
 
-#include "../../lib/Rxx/File.h"
+#include "../../lib/Rut/RxStream.h"
 #include "../../lib/YurisStaticLibrary/YSTL.h"
 
-using namespace Rut::FileX;
+using namespace Rut;
 using namespace YurisLibrary;
 
 
@@ -28,20 +28,20 @@ int wmain(int argc, wchar_t* argv[])
 	}
 
 	uint32_t version = 0;
-	std::ifstream ifs_ystl = OpenFileBinaryStream(L"ysbin/yst_list.ybn");
-	ifs_ystl.seekg(0x4, std::ios::beg);
-	ifs_ystl.read((char*)&version, 4);
+	RxStream::Binary ifs_ystl = { L"ysbin/yst_list.ybn", RIO::RIO_IN };
+	ifs_ystl.SetPointer(0x4);
+	ifs_ystl.Read(&version, 4);
 
 	try
 	{
 		const wchar_t* command = argv[1];
 
-		if (version < 300)
+		if (version > 466)
 		{
-			YSTL::YSTL_V2 yst;
+			YSTL::YSTL_V5 yst;
 			yst.Init(L"ysbin/yst_list.ybn");
 
-			if (!wcscmp(command,L"-json"))
+			if (!wcscmp(command, L"-json"))
 			{
 				yst.ToJson(L"ystl.json");
 				std::cout << "Save As ystl.json\n";
@@ -59,7 +59,7 @@ int wmain(int argc, wchar_t* argv[])
 		}
 		else
 		{
-			YSTL::YSTL_V5 yst;
+			YSTL::YSTL_V2 yst;
 			yst.Init(L"ysbin/yst_list.ybn");
 
 			if (!wcscmp(command, L"-json"))

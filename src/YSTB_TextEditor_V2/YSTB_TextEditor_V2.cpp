@@ -1,7 +1,8 @@
 ﻿#include <iostream>
 #include <vector>
 
-#include "../../lib/Rxx/File.h"
+#include "../../lib/Rut/RxPath.h"
+#include "../../lib/Rut/RxStream.h"
 #include "../../lib/YurisStaticLibrary/YSTB.h"
 
 using namespace Rut;
@@ -38,7 +39,7 @@ void TextEditor()
 		wcout << L"input:";
 		wcin >> command;
 
-		FileX::GetAllFileNameW(base_path, files_name_list);
+		RxPath::GetAllFileNameW(base_path, files_name_list);
 
 		switch (command)
 		{
@@ -53,17 +54,17 @@ void TextEditor()
 		{
 			for (auto& iteFileName : files_name_list)
 			{
-				if (iteFileName.find(L".ybn", iteFileName.size() - 4) != wstring::npos)
-				{
-					if (YSTB::YSTB_V2::TextDump_V2(iteFileName, exCodePage, isAudioFlag))
-					{
-						wcout << L"Save:" << iteFileName + L".txt" << L'\n';
-					}
-					else
-					{
-						wcout << L"Failed:" << iteFileName << L'\n';
-					}
-				}
+				//if (iteFileName.find(L".ybn", iteFileName.size() - 4) != wstring::npos)
+				//{
+				//	if (YSTB::YSTB_V2::TextDump_V2(iteFileName, exCodePage, isAudioFlag))
+				//	{
+				//		wcout << L"Save:" << iteFileName + L".txt" << L'\n';
+				//	}
+				//	else
+				//	{
+				//		wcout << L"Failed:" << iteFileName << L'\n';
+				//	}
+				//}
 			}
 		}
 		break;
@@ -72,17 +73,17 @@ void TextEditor()
 		{
 			for (auto& iteFileName : files_name_list)
 			{
-				if (iteFileName.find(L".ybn", iteFileName.size() - 4) != wstring::npos)
-				{
-					if (YSTB::YSTB_V2::TextInset_V2(iteFileName, inCodePage))
-					{
-						wcout << L"Save:" << iteFileName + L".new" << L'\n';
-					}
-					else
-					{
-						wcout << L"Failed:" << iteFileName << L'\n';
-					}
-				}
+				//if (iteFileName.find(L".ybn", iteFileName.size() - 4) != wstring::npos)
+				//{
+				//	if (YSTB::YSTB_V2::TextInset_V2(iteFileName, inCodePage))
+				//	{
+				//		wcout << L"Save:" << iteFileName + L".new" << L'\n';
+				//	}
+				//	else
+				//	{
+				//		wcout << L"Failed:" << iteFileName << L'\n';
+				//	}
+				//}
 			}
 		}
 		break;

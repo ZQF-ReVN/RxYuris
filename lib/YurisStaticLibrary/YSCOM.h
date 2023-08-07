@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
 
-#include "../Rxx/Mem.h"
+#include "../Rut/RxStream.h"
 
 
 namespace YurisLibrary
@@ -12,7 +12,7 @@ namespace YurisLibrary
 		{
 		private:
 			uint32_t m_uiScriptCount;
-			Rut::MemX::AutoMem m_amBin;
+			Rut::RxStream::AutoMem m_amBin;
 
 		public:
 			YSCOM_Loader();

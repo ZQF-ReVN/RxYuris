@@ -1,5 +1,5 @@
 ﻿#include "YPF.h"
-#include "../Rxx/File.h"
+#include "../Rut/RxStream.h"
 
 
 namespace YurisLibrary
@@ -12,7 +12,6 @@ namespace YurisLibrary
 			m_Header({ 0 }),
 			m_wsYPF(wsFile)
 		{
-			m_ifsYPF = FileX::OpenFileBinaryStream(m_wsYPF);
 			InitIndex();
 		}
 
@@ -64,11 +63,13 @@ namespace YurisLibrary
 
 		void YPF_V5::InitIndex()
 		{
+			RxStream::Binary ifs_ypf { m_wsYPF, RIO::RIO_IN };
+
 			char* pIndex = nullptr;
 
-			m_ifsYPF.read(reinterpret_cast<char*>(&m_Header), sizeof(m_Header));
+			ifs_ypf.Read(&m_Header, sizeof(m_Header));
 			pIndex = new char[m_Header.uiIndexBlockSize];
-			m_ifsYPF.read(pIndex, m_Header.uiIndexBlockSize);
+			ifs_ypf.Read(pIndex, m_Header.uiIndexBlockSize);
 
 			char* pEntry = pIndex;
 			YPF_Entry_V5 Entry = { 0 };
@@ -99,33 +100,24 @@ namespace YurisLibrary
 
 		void YPF_V5::DecodeFile_WZ()
 		{
-			m_ifsYPF.close();
-
-			std::fstream ioYPF(m_wsYPF, std::ios::in | std::ios::out | std::ios::binary);
-			if (!ioYPF.is_open()) return;
-
-			uint32_t tmp0 = 0;
-			uint32_t tmp1 = 0;
+			uint32_t tmp0 = 0, tmp1 = 0;
+			RxStream::Binary io_pack = { m_wsYPF ,RIO::RIO_IN_OUT };
 			for (auto& iteEntry : m_vecEntry)
 			{
-				ioYPF.seekg(iteEntry.ullDataOffset);
-				ioYPF.read((char*)&tmp0, 4);
-				ioYPF.read((char*)&tmp1, 4);
+				io_pack.SetPointer((uint32_t)iteEntry.ullDataOffset);
+				io_pack.Read(&tmp0, 4);
+				io_pack.Read(&tmp1, 4);
 
 				if ((tmp0 ^ (tmp0 & 0xFFFFFF00)) == 0x5A)
 				{
 					tmp0 ^= 0x0040FB22;
 					tmp1 ^= iteEntry.uiCompSize;
 
-					ioYPF.seekp(iteEntry.ullDataOffset);
-					ioYPF.write((char*)&tmp0, 4);
-					ioYPF.write((char*)&tmp1, 4);
+					io_pack.SetPointer((uint32_t)iteEntry.ullDataOffset);
+					io_pack.Write(&tmp0, 4);
+					io_pack.Write(&tmp1, 4);
 				}
-
 			}
-
-			ioYPF.flush();
-			ioYPF.close();
 		}
 	}
 }

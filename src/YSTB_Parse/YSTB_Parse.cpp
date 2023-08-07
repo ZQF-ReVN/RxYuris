@@ -1,19 +1,23 @@
-﻿#include "../../lib/YurisStaticLibrary/YSTB.h"
+﻿#include "../../lib/Rut/RxPath.h"
+
+#include "../../lib/YurisStaticLibrary/YSTB.h"
 #include "../../lib/YurisStaticLibrary/YSCM.h"
-using namespace Rut::FileX;
+
+using namespace Rut;
 using namespace YurisLibrary;
+
 
 int main()
 {
 	std::vector<std::wstring> filename_list;
-	GetAllFileNameW(L"dec/", filename_list);
+	RxPath::GetAllFileNameW(L"dec/", filename_list);
 	YSCM::YSCM_V5 yscm(L"ysc.ybn");
 	std::vector<YSCM::YSCM_Command_V5>& command_list = yscm.GetCommandList();
 
 	for (auto& file : filename_list)
 	{
 		YSTB::YSTB_V5 ystb(L"dec/" + file);
-		std::ofstream ofs_text = CreateFileANSIStream(L"text/" + file + L".txt");
+		RxStream::Text ofs_text(L"text/" + file + L".txt", RIO::RIO_OUT, RFM::RFM_ANSI);
 
 		for (auto& inst : ystb.GetInstList())
 		{
@@ -22,7 +26,7 @@ int main()
 			std::string command_name = command.GetCommandName();
 			std::vector<YSCM::YSCM_Arg_V5>& args_list = command.GetArgList();
 
-			ofs_text << command_name << "[";
+			ofs_text.WriteLine(command_name + "[");
 			for (auto& arg : inst.GetArgList())
 			{
 				uint16_t arg_id = arg.GetArgID();
@@ -41,7 +45,7 @@ int main()
 					std::string text;
 					text.resize(size);
 					memcpy((char*)text.data(), data_ptr, size);
-					ofs_text << arg_name << "\"" << text << "\", ";
+					ofs_text.WriteLine(arg_name + "\"" + text + "\", ");
 					continue;
 				}
 
@@ -57,7 +61,7 @@ int main()
 						int a = 0;
 						str.resize(str_size);
 						memcpy((char*)str.data(), str_ptr, str_size);
-						ofs_text << arg_name << "=\"" << str << "\", ";
+						ofs_text.WriteLine(arg_name + "=\"" + str + "\", ");
 						continue;
 					}
 				}
@@ -68,16 +72,14 @@ int main()
 					{
 						uint8_t* p_d = data_ptr + 3;
 						double x = *(double*)p_d;
-						ofs_text << arg_name << "=\"" << x << "\", ";
+						ofs_text.WriteLine(arg_name + "=\"" + std::to_string(x) + "\", ");
 						continue;
 					}
 				}
 
-				ofs_text << arg_name << "=\"" << "\", ";
+				ofs_text.WriteLine(arg_name + "=\"" + "\", ");
 			}
-			ofs_text << "]\n";
+			ofs_text.WriteLine("]\n");
 		}
-
-		int a = 0;
 	}
 }

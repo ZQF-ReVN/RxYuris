@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "YSCM_Struct.h"
-#include "../Rxx/Mem.h"
+#include "../Rut/RxStream.h"
 
 
 namespace YurisLibrary
@@ -53,7 +53,7 @@ namespace YurisLibrary
 			YSCM_Header_V5 m_Header;
 			std::vector<YSCM_Command_V5> m_vecCommand;
 			std::vector<std::string> m_vecErrorMsg;
-			Rut::MemX::AutoMem m_amUnknowTable;
+			Rut::RxStream::AutoMem m_amUnknowTable;
 
 		public:
 			YSCM_V5();

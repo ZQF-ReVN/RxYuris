@@ -1,13 +1,12 @@
 ﻿#include "YSCM.h"
-#include "../Rxx/File.h"
+#include "../Rut/RxStream.h"
 
 
 namespace YurisLibrary
 {
 	namespace YSCM
 	{
-		using namespace Rut::MemX;
-		using namespace Rut::FileX;
+		using namespace Rut;
 
 
 		YSCM_Arg_V5::YSCM_Arg_V5()
@@ -80,7 +79,7 @@ namespace YurisLibrary
 
 		void YSCM_V5::Init(const std::wstring& wsYSCM)
 		{
-			AutoMem yscm_buf(wsYSCM);
+			RxStream::AutoMem yscm_buf(wsYSCM);
 
 			// Read Header
 			uint8_t* yscm_ptr = yscm_buf;
@@ -106,15 +105,15 @@ namespace YurisLibrary
 
 			// Read Unknow Table = 0x100bytes [161222] [Chealseasoft] 恋は夢見る妄烈ガール！: 0046314D
 			uint8_t* unknow_table_ptr = error_msg_ptr;
-			m_amUnknowTable.ReSize(0x100);
+			m_amUnknowTable.SetSize(0x100);
 			memcpy((uint8_t*)m_amUnknowTable, unknow_table_ptr, 0x100);
 		}
 
 		void YSCM_V5::ToJson(const std::wstring& wsJson)
 		{
-			std::ofstream ofs_text = CreateFileANSIStream(wsJson);
+			RxStream::Text ofs_text = { wsJson, RIO::RIO_OUT, RFM::RFM_ANSI };
 
-			ofs_text << "{\n\t\"Commands\":\n\t[\n";
+			ofs_text.WriteLine("{\n\t\"Commands\":\n\t[\n");
 
 			char tmp[256] = { 0 };
 			for (auto& command : m_vecCommand)
@@ -125,7 +124,7 @@ namespace YurisLibrary
 					"\t\t{\n\t\t\t\"OP\":\"0x%x\",\n\t\t\t\"Command\":\"%s\",\n\t\t\t\"Args\":\n\t\t\t[\n",
 					command.GetOpcode(), command.GetCommandName().c_str()
 				);
-				ofs_text << tmp;
+				ofs_text.WriteLine(tmp);
 
 				uint32_t arg_id = 0;
 				for (auto& arg : command.GetArgList())
@@ -136,14 +135,14 @@ namespace YurisLibrary
 						"\t\t\t\t{\n\t\t\t\t\t\"ID\":\"0x%x\",\n\t\t\t\t\t\"Arg\":\"%s\",\n\t\t\t\t\t\"Value0\":\"0x%x\",\n\t\t\t\t\t\"Value1\":\"0x%x\",\n\t\t\t\t},\n", 
 						arg_id, arg.GetArgName().c_str(), arg.GetArgValue0(), arg.GetArgValue1()
 					);
-					ofs_text << tmp;
+					ofs_text.WriteLine(tmp);
 					arg_id++;
 				}
 
-				ofs_text << "\t\t\t],\n\t\t},\n";
+				ofs_text.WriteLine("\t\t\t],\n\t\t},\n");
 			}
 
-			ofs_text << "\t],\n}\n";
+			ofs_text.WriteLine("\t],\n}\n");
 		}
 	}
 }
