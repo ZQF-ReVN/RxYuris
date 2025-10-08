@@ -18,7 +18,7 @@ int wmain(int argc, wchar_t* argv[])
 			<< "Example\n"
 			<< "\tYSTB_GuessXorKey.exe yst00004.ybn\n\n";
 
-		system("pasue");
+		system("pause");
 		return 0;
 	}
 
